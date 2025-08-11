@@ -10,7 +10,6 @@ from app.schemas.common_types import (
     ChatResponse,
     ChatReportRequest,
     ChatReportResponse,
-    ErrorResponse,
 )
 
 router = APIRouter(prefix="/chat", tags=["chat"])

@@ -1,9 +1,29 @@
-import React from 'react'
+"use client";
 
-function Select() {
+import React from "react";
+
+export type Option = { label: string; value: string };
+export type SelectProps = {
+  value?: string;
+  onChange?: (value: string) => void;
+  options: Option[];
+  className?: string;
+  disabled?: boolean;
+};
+
+export default function Select({ value, onChange, options, className, disabled }: SelectProps) {
   return (
-    <div>Select</div>
-  )
+    <select
+      className={`select ${className ?? ""}`}
+      value={value}
+      onChange={(e) => onChange?.(e.target.value)}
+      disabled={disabled}
+    >
+      {options.map((opt) => (
+        <option key={opt.value} value={opt.value}>
+          {opt.label}
+        </option>
+      ))}
+    </select>
+  );
 }
-
-export default Select

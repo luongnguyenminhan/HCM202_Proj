@@ -1,9 +1,6 @@
-import React from 'react'
+import React from "react";
+import Card from "@/components/base/Card";
 
-function Sidebar() {
-  return (
-    <div>Sidebar</div>
-  )
+export default function Sidebar({ children }: React.PropsWithChildren) {
+  return <Card>{children ?? "Sidebar"}</Card>;
 }
-
-export default Sidebar

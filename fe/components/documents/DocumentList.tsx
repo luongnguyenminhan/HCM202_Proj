@@ -1,9 +1,16 @@
-import React from 'react'
+"use client";
 
-function DocumentList() {
+import React, { useState } from "react";
+import { getDocumentsMeta } from "@/services/mock";
+import DocumentCard from "./DocumentCard";
+
+export default function DocumentList() {
+  const [docs] = useState(getDocumentsMeta());
   return (
-    <div>DocumentList</div>
-  )
+    <div style={{ display: "grid", gap: 12 }}>
+      {docs.map((d) => (
+        <DocumentCard key={d.id} doc={d} onOpen={(id) => alert(`Open ${id}`)} />
+      ))}
+    </div>
+  );
 }
-
-export default DocumentList

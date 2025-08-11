@@ -1,9 +1,9 @@
-import React from 'react'
+"use client";
 
-function Spinner() {
-  return (
-    <div>Spinner</div>
-  )
+import React from "react";
+
+export type SpinnerProps = { size?: number; className?: string };
+
+export default function Spinner({ size = 18, className }: SpinnerProps) {
+  return <span className={`spinner ${className ?? ""}`} style={{ width: size, height: size }} />;
 }
-
-export default Spinner
