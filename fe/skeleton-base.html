@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>Skeleton UI - HCM Chatbot RAG</title>
+<style>
+  :root{
+    --bg:#0f1724;
+    --card:#fff;
+    --muted:#98a2b3;
+    --accent1:#e6f2ff;
+    --accent2:#fff0e6;
+    --accent3:#f0ffe6;
+    --accent4:#f7e6ff;
+    --border:rgba(255,255,255,0.08);
+    --w:1200px;
+  }
+  
+  *{
+    box-sizing:border-box;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  }
+  
+  body{
+    margin:0;
+    background:linear-gradient(180deg,#071022 0%, #0b1220 100%);
+    color:var(--card);
+    display:flex;
+    justify-content:center;
+    padding:24px;
+    min-height:100vh;
+  }
+  
+  .shell{
+    width:var(--w);
+    max-width:100%;
+  }
+
+  /* Header */
+  header.top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:20px 10px;
+    border-radius:10px 10px 8px 8px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--border);
+    margin-bottom:18px;
+    position:sticky;
+    top:0;
+    z-index:100;
+    backdrop-filter:blur(10px);
+  }
+  
+  .logo{
+    font-weight:700;
+    letter-spacing:0.6px;
+  }
+  
+  .nav{
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+  
+  .nav a{
+    color:var(--muted);
+    text-decoration:none;
+    font-size:14px;
+    padding:6px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    transition:all 0.2s ease;
+  }
+  
+  .nav a:hover{
+    background:rgba(255,255,255,0.05);
+    color:var(--card);
+  }
+  
+  .nav a.active{
+    background:rgba(255,255,255,0.03);
+    color:var(--card);
+  }
+
+  /* Common layouts */
+  .page{
+    display:grid;
+    gap:18px;
+    animation:fadeIn 0.3s ease-in;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity:0; transform:translateY(10px); }
+    to { opacity:1; transform:translateY(0); }
+  }
+
+  .card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    padding:12px;
+    border-radius:10px;
+    min-height:86px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all 0.2s ease;
+    cursor:pointer;
+  }
+  
+  .card:hover{
+    background:rgba(255,255,255,0.06);
+    border-color:rgba(255,255,255,0.15);
+    transform:translateY(-2px);
+  }
+  
+  .card .label{
+    color:var(--muted);
+    font-size:13px;
+    text-align:center;
+  }
+
+  .component-box{
+    background:rgba(255,255,255,0.02);
+    border:1px dashed var(--border);
+    padding:10px;
+    border-radius:8px;
+    text-align:center;
+    transition:all 0.2s ease;
+  }
+  
+  .component-box:hover{
+    background:rgba(255,255,255,0.04);
+    border-color:rgba(255,255,255,0.15);
+  }
+  
+  .small{
+    font-size:12px;
+    color:var(--muted);
+  }
+
+  /* Footer */
+  footer{
+    margin-top:20px;
+    padding:12px;
+    border-radius:8px;
+    background:rgba(255,255,255,0.02);
+    border:1px solid var(--border);
+    text-align:center;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.3);
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .shell { width: 100%; padding: 0 12px; }
+    header.top { padding: 16px 8px; }
+    .nav { gap: 8px; }
+    .nav a { padding: 4px 8px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header class="top">
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="logo">HCM Thought — RAG</div>
+        <div class="small">desktop preview · 1440px</div>
+      </div>
+      <nav class="nav">
+        <a href="skeleton-home.html" class="nav-link">Home</a>
+        <a href="skeleton-chat.html" class="nav-link">Chatbot</a>
+        <a href="skeleton-documents.html" class="nav-link">Tài liệu</a>
+        <a href="skeleton-articles.html" class="nav-link">Phân tích</a>
+        <a href="skeleton-admin.html" class="nav-link">Admin</a>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <!-- Page content will be inserted here -->
+    </main>
+
+    <footer class="small">
+      Footer.tsx — sources list · contact · legal
+    </footer>
+  </div>
+
+  <script>
+    // Simple navigation handling
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      const currentPage = window.location.pathname.split('/').pop();
+      
+      navLinks.forEach(link => {
+        if (link.getAttribute('href') === currentPage) {
+          link.classList.add('active');
+        }
+        
+        link.addEventListener('click', function(e) {
+          navLinks.forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

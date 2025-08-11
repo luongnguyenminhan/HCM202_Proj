@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440" />
+<title>Skeleton UI - HCM Chatbot RAG</title>
+<style>
+  :root{
+    --bg:#0f1724;    /* dark background */
+    --card:#fff;
+    --muted:#98a2b3;
+    --accent1:#e6f2ff;
+    --accent2:#fff0e6;
+    --accent3:#f0ffe6;
+    --accent4:#f7e6ff;
+    --border:rgba(255,255,255,0.08);
+    --w:1200px;
+  }
+  *{box-sizing:border-box;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;}
+  body{margin:0;background:linear-gradient(180deg,#071022 0%, #0b1220 100%);color:var(--card);display:flex;justify-content:center;padding:24px;}
+  .shell{width:var(--w);}
+
+  header.top{display:flex;align-items:center;justify-content:space-between;padding:20px 10px;border-radius:10px 10px 8px 8px;
+    background:rgba(255,255,255,0.02);border:1px solid var(--border);margin-bottom:18px}
+  .logo{font-weight:700;letter-spacing:0.6px}
+  .nav{display:flex;gap:12px;align-items:center}
+  .nav a{color:var(--muted);text-decoration:none;font-size:14px;padding:6px 10px;border-radius:6px}
+  .nav a.active{background:rgba(255,255,255,0.03);color:var(--card)}
+
+  /* grid for pages */
+  .page{display:grid;gap:18px}
+  /* Home layout */
+  .home-hero{display:flex;gap:18px}
+  .hero{flex:1;background:var(--accent1);border:1px solid rgba(0,60,120,0.15);color:#012a4a;padding:24px;border-radius:10px}
+  .hero .title{font-size:28px;font-weight:700;margin-bottom:8px}
+  .hero .desc{color:#09415a}
+
+  .hero-right{width:360px;display:flex;flex-direction:column;gap:12px}
+  .featured, .pr{background:var(--accent2);padding:14px;border-radius:10px;border:1px solid rgba(120,60,0,0.08);color:#5b2e00}
+
+  .articles-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .card{background:rgba(255,255,255,0.03);border:1px solid var(--border);padding:12px;border-radius:10px;min-height:86px;display:flex;align-items:center;justify-content:center}
+  .card .label{color:var(--muted);font-size:13px;text-align:center}
+
+  /* Chat page split layout */
+  .split{display:grid;grid-template-columns: 2fr 1fr;gap:12px;min-height:520px}
+  .chat-col{background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column}
+  .messages{flex:1;overflow:auto;padding:8px;display:flex;flex-direction:column;gap:10px}
+  .input-row{display:flex;gap:8px;padding-top:10px}
+  .context-pane{background:rgba(255,255,255,0.02);border:1px solid var(--border);padding:12px;border-radius:10px;overflow:auto}
+
+  /* docs page */
+  .docs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .doc-card{background:var(--accent3);padding:12px;border-radius:8px;color:#203c00;border:1px solid rgba(32,60,0,0.08)}
+
+  /* article list */
+  .article-list{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+
+  /* admin */
+  .admin-grid{display:grid;grid-template-columns:320px 1fr;gap:12px}
+
+  /* small helpers */
+  .component-box{background:rgba(255,255,255,0.02);border:1px dashed var(--border);padding:10px;border-radius:8px;text-align:center}
+  .small{font-size:12px;color:var(--muted)}
+  
+  /* Navigation cards */
+  .nav-cards{display:grid;grid-template-columns:repeat(auto-fit, minmax(300px, 1fr));gap:16px;margin-bottom:40px}
+  .nav-card{
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:20px;
+    text-decoration:none;
+    color:inherit;
+    transition:all 0.3s ease;
+    cursor:pointer;
+  }
+  .nav-card:hover{
+    background:rgba(255,255,255,0.06);
+    border-color:rgba(255,255,255,0.15);
+    transform:translateY(-2px);
+  }
+  .nav-card-title{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:8px;
+    color:var(--card);
+  }
+  .nav-card-desc{
+    color:var(--muted);
+    line-height:1.4;
+    margin-bottom:12px;
+  }
+  .nav-card-features{
+    font-size:12px;
+    color:var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="shell">
+
+    <header class="top">
+      <div style="display:flex;gap:14px;align-items:center">
+        <div class="logo">HCM Thought — RAG</div>
+        <div class="small">skeleton navigation · 1440px</div>
+      </div>
+      <nav class="nav">
+        <a class="active">Index</a>
+        <a href="skeleton-home.html">Home</a>
+        <a href="skeleton-chat.html">Chatbot</a>
+        <a href="skeleton-documents.html">Tài liệu</a>
+        <a href="skeleton-articles.html">Phân tích</a>
+        <a href="skeleton-admin.html">Admin</a>
+      </nav>
+    </header>
+
+    <div style="text-align:center;margin-bottom:32px">
+      <h1 style="margin:0 0 8px 0;font-size:32px;font-weight:700">HCM Chatbot RAG - Skeleton UI</h1>
+      <p style="margin:0;color:var(--muted);font-size:16px">Giao diện skeleton cho hệ thống RAG với layout rõ ràng và tương tác cơ bản</p>
+    </div>
+
+    <div class="nav-cards">
+      <a href="skeleton-home.html" class="nav-card">
+        <div class="nav-card-title">🏠 Home Page</div>
+        <div class="nav-card-desc">
+          Trang chủ với hero banner, featured articles và latest articles. Giao diện chính để người dùng bắt đầu.
+        </div>
+        <div class="nav-card-features">
+          • HeroBanner.tsx • FeaturedArticles.tsx • ArticleCard.tsx • PRSection.tsx
+        </div>
+      </a>
+
+      <a href="skeleton-chat.html" class="nav-card">
+        <div class="nav-card-title">💬 Chatbot</div>
+        <div class="nav-card-desc">
+          Giao diện chat với AI, split layout, hiển thị sources và context pane với highlighted quotes.
+        </div>
+        <div class="nav-card-features">
+          • ChatWindow.tsx • ChatMessage.tsx • SourceList.tsx • ContextPane.tsx
+        </div>
+      </a>
+
+      <a href="skeleton-documents.html" class="nav-card">
+        <div class="nav-card-title">📚 Tài liệu</div>
+        <div class="nav-card-desc">
+          Kho tài liệu với search, filter, grid view và detail view với chapter list.
+        </div>
+        <div class="nav-card-features">
+          • DocumentCard.tsx • DocumentList.tsx • ChapterList.tsx • DocumentDetail.tsx
+        </div>
+      </a>
+
+      <a href="skeleton-articles.html" class="nav-card">
+        <div class="nav-card-title">📰 Phân tích</div>
+        <div class="nav-card-desc">
+          Danh sách bài viết với sidebar categories, trending articles và search functionality.
+        </div>
+        <div class="nav-card-features">
+          • ArticleList.tsx • ArticleCategoryMenu.tsx • ArticleSidebar.tsx • ArticleDetail.tsx
+        </div>
+      </a>
+
+      <a href="skeleton-admin.html" class="nav-card">
+        <div class="nav-card-title">⚙️ Admin</div>
+        <div class="nav-card-desc">
+          Giao diện quản trị với upload documents, document table, chunk preview và delete modal.
+        </div>
+        <div class="nav-card-features">
+          • UploadDocumentForm.tsx • DocumentTable.tsx • ChunkPreview.tsx • DeleteConfirmModal.tsx
+        </div>
+      </a>
+    </div>
+
+    <!-- PREVIEW SECTIONS -->
+    
+    <!-- HOME PAGE -->
+    <section class="page" id="home">
+      <h3 style="margin:24px 0 12px 0;color:var(--muted)">Home Page Preview</h3>
+      <div class="home-hero">
+        <div class="hero">
+          <div class="title">HeroBanner</div>
+          <div class="desc">PRSection / summary. Button → Vào Chatbot</div>
+          <div style="height:12px"></div>
+          <div class="component-box">HeroBanner.tsx</div>
+        </div>
+
+        <aside class="hero-right">
+          <div class="featured">
+            <div style="font-weight:700">FeaturedArticles</div>
+            <div class="component-box" style="margin-top:8px">FeaturedArticles.tsx</div>
+          </div>
+
+          <div class="pr">
+            <div style="font-weight:700">PRSection</div>
+            <div class="component-box" style="margin-top:8px">PRSection.tsx</div>
+          </div>
+        </aside>
+      </div>
+
+      <h3 style="margin:8px 0;color:var(--muted)">Latest Articles</h3>
+      <div class="articles-grid">
+        <div class="card"><div class="label">ArticleCard.tsx</div></div>
+        <div class="card"><div class="label">ArticleCard.tsx</div></div>
+        <div class="card"><div class="label">ArticleCard.tsx</div></div>
+        <div class="card"><div class="label">ArticleCard.tsx</div></div>
+        <div class="card"><div class="label">ArticleCard.tsx</div></div>
+        <div class="card"><div class="label">ArticleCard.tsx</div></div>
+      </div>
+    </section>
+
+    <hr style="border:none;height:16px">
+
+    <!-- CHAT PAGE -->
+    <section class="page" id="chat">
+      <h3 style="margin:24px 0 12px 0;color:var(--muted)">Chatbot Page Preview (SplitLayout)</h3>
+      <div class="split">
+        <div class="chat-col">
+          <div class="small" style="margin-bottom:8px">ChatWindow.tsx</div>
+          <div class="messages">
+            <div class="card" style="align-self:flex-start;background:rgba(10,80,40,0.06);border:1px solid rgba(10,80,40,0.12)"><div class="label">ChatMessage (bot)</div></div>
+            <div class="card" style="align-self:flex-end;background:rgba(0,70,140,0.06);border:1px solid rgba(0,70,140,0.12)"><div class="label">ChatMessage (user)</div></div>
+            <div class="card"><div class="label">SourceList / SourceItem</div></div>
+          </div>
+
+          <div class="input-row">
+            <div style="flex:1" class="component-box">ChatInput.tsx</div>
+            <div style="width:120px" class="component-box">Button.tsx</div>
+          </div>
+        </div>
+
+        <aside class="context-pane">
+          <div style="font-weight:700;margin-bottom:8px">ContextPane / DocumentDetail</div>
+          <div class="small">ContextPane.tsx shows chapter + highlighted Quote</div>
+          <div style="height:8px"></div>
+          <div class="card" style="min-height:120px"><div class="label">ChapterContent.tsx / HighlightedQuote.tsx</div></div>
+        </aside>
+      </div>
+    </section>
+
+    <hr style="border:none;height:16px">
+
+    <!-- DOCUMENTS PAGE -->
+    <section class="page" id="docs">
+      <h3 style="margin:24px 0 12px 0;color:var(--muted)">Documents Page Preview</h3>
+      <div class="docs-grid">
+        <div class="doc-card"><div class="label">DocumentCard.tsx</div></div>
+        <div class="doc-card"><div class="label">DocumentCard.tsx</div></div>
+        <div class="doc-card"><div class="label">DocumentCard.tsx</div></div>
+        <div class="doc-card"><div class="label">DocumentCard.tsx</div></div>
+        <div class="doc-card"><div class="label">DocumentCard.tsx</div></div>
+        <div class="doc-card"><div class="label">DocumentCard.tsx</div></div>
+      </div>
+
+      <div style="margin-top:14px;display:flex;gap:12px">
+        <div style="flex:1" class="component-box">DocumentList.tsx</div>
+        <div style="width:420px" class="component-box">DocumentDetail.tsx / ChapterList.tsx</div>
+      </div>
+    </section>
+
+    <hr style="border:none;height:16px">
+
+    <!-- ARTICLES PAGE -->
+    <section class="page" id="articles">
+      <h3 style="margin:24px 0 12px 0;color:var(--muted)">Articles Page Preview</h3>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <div class="article-list">
+            <div class="card"><div class="label">ArticleList / ArticleCard</div></div>
+            <div class="card"><div class="label">ArticleList / ArticleCard</div></div>
+            <div class="card"><div class="label">ArticleList / ArticleCard</div></div>
+            <div class="card"><div class="label">ArticleList / ArticleCard</div></div>
+          </div>
+        </div>
+
+        <aside style="width:320px" class="component-box">
+          <div>ArticleCategoryMenu.tsx</div>
+          <div style="height:8px"></div>
+          <div>ArticleSidebar.tsx</div>
+        </aside>
+      </div>
+    </section>
+
+    <hr style="border:none;height:16px">
+
+    <!-- ADMIN PAGE -->
+    <section class="page" id="admin">
+      <h3 style="margin:24px 0 12px 0;color:var(--muted)">Admin Page Preview</h3>
+      <div class="admin-grid">
+        <div class="component-box">
+          <div style="font-weight:700">UploadDocumentForm.tsx</div>
+          <div style="height:8px"></div>
+          <div class="small">Drag&drop PDF / OCR / chunk / push to Qdrant</div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div class="component-box">DocumentTable.tsx</div>
+          <div class="component-box">ChunkPreview.tsx</div>
+          <div class="component-box">DeleteConfirmModal.tsx</div>
+        </div>
+      </div>
+    </section>
+
+    <footer style="margin-top:40px;padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);border:1px solid var(--border);text-align:center" class="small">
+      Footer.tsx — sources list · contact · legal
+    </footer>
+
+  </div>
+</body>
+</html>
