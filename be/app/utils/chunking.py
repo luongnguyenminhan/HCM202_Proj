@@ -34,7 +34,7 @@ def extract_text_from_pdf(file_bytes: bytes) -> str:
     pages: List[str] = []
     for p in reader.pages:
         try:
-            pages.append(p.extract_text().replace('\n\n', '').replace('\n \n', '') or '')
+            pages.append(p.extract_text().replace('\n\n', '\n').replace('\n \n', '\n') or '')
         except Exception:
             print_error('Lỗi extract_text trang PDF')
             pages.append('')
