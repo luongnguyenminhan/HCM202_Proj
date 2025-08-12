@@ -10,26 +10,27 @@ from contextlib import asynccontextmanager
 # Import database and API components
 from app.core.database import create_db_and_tables
 from app.api import api_router
+from app.utils import print_info, print_success, print_error
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan handler"""
     # Startup
-    print("🚀 Starting HCM Thoughts RAG API...")
+    print_info("🚀 Starting HCM Thoughts RAG API...")
 
     # Create database tables
     try:
         create_db_and_tables()
-        print("✅ Database tables created/verified")
+        print_success("✅ Database tables created/verified")
     except Exception as e:
-        print(f"❌ Database initialization failed: {e}")
+        print_error(f"❌ Database initialization failed: {e}")
         # Don't crash the app, continue without database
 
     yield
 
     # Shutdown
-    print("🛑 Shutting down HCM Thoughts RAG API...")
+    print_info("🛑 Shutting down HCM Thoughts RAG API...")
 
 
 # Create FastAPI app

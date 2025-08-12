@@ -1,0 +1,26 @@
+---
+globs: *.py
+alwaysApply: false
+---
+
+## Python Backend Coding Rules (FastAPI/SQLModel)
+
+- Architecture under `app/` follows: `api/` (routers), `core/` (config/db), `db/` (seed/init), `models/` (SQLModel/SQLAlchemy ORM), `schemas/` (Pydantic), `services/` (business logic), `utils/` (reusable helpers).
+- Core principles:
+  - Keep code minimal, DRY. Shared logic → `app/utils/`.
+  - Docstring ngắn gọn (1–3 dòng) nêu mục đích.
+  - Use FastAPI, SQLModel, Pydantic schemas, SQLAlchemy ORM patterns nhất quán.
+- Logging/Debug:
+  - Dùng `app.utils.color_print` và helpers (`print_info`, `print_error`, ...) để in màu khi debug.
+  - Không thêm framework logging phức tạp trừ khi thật cần.
+- APIs:
+  - Router dưới `app/api/endpoints/` theo module; gom vào `api_router` trong `app/api/__init__.py`.
+  - Request/Response dùng `schemas/` (Pydantic). Không trả model ORM trực tiếp.
+  - Validate đầu vào rõ ràng, raise HTTPException hợp lý.
+- Services:
+  - Mỗi dịch vụ tách trong `services/`, không truy vấn DB trong router.
+  - Giao tiếp DB qua SQLModel/Session; tách hàm nhỏ, dễ test.
+- After coding an API flow:
+  - Cập nhật `be/docs/APIDocs.md`: mô tả endpoint, params, schema I/O, ví dụ.
+  - Tuân theo `be/plan.md` khi bổ sung/đổi API.
+- No extra docs ngoài cập nhật `APIDocs.md` sau mỗi flow.
