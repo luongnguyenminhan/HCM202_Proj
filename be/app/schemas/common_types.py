@@ -12,14 +12,14 @@ from pydantic import BaseModel, Field
 class ApiResponse(BaseModel):
     """Base API response wrapper"""
 
-    status: str = "ok"
+    status: str = 'ok'
     message: Optional[str] = None
 
 
 class ErrorResponse(BaseModel):
     """Error response schema"""
 
-    status: str = "error"
+    status: str = 'error'
     message: str
     details: Optional[Dict[str, Any]] = None
 
@@ -126,7 +126,7 @@ class ChatQuery(BaseModel):
 class ChatStreamEvent(BaseModel):
     """SSE event cho luồng chat (structured)."""
 
-    type: Literal["start", "retrieval", "sources", "token", "done", "error"]
+    type: Literal['start', 'retrieval', 'sources', 'token', 'done', 'error']
     data: Dict[str, Any] = {}
 
 
@@ -136,7 +136,7 @@ class ChatReportRequest(BaseModel):
     message_id: Optional[str] = None
     reference_id: str
     reason: str = Field(..., min_length=1, max_length=500)
-    source: str = Field(default="chat_message")
+    source: str = Field(default='chat_message')
 
 
 class ChatReportResponse(ApiResponse):
@@ -282,7 +282,7 @@ class FeaturedResponse(BaseModel):
 class HealthResponse(BaseModel):
     """Health check response"""
 
-    status: str = "ok"
+    status: str = 'ok'
     timestamp: datetime = Field(default_factory=datetime.now)
 
 
