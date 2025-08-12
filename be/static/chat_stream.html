@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSE Chat Demo</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; }
+    .row { display: flex; gap: 12px; margin-bottom: 12px; }
+    input, button { font-size: 16px; padding: 8px 10px; }
+    #log { white-space: pre-wrap; border: 1px solid #ddd; padding: 12px; min-height: 200px; border-radius: 8px; }
+    .token { color: #333; }
+    .event { color: #666; font-size: 12px; }
+    .sources { margin-top: 8px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <h2>Streaming Chat (SSE)</h2>
+  <div class="row">
+    <input id="q" placeholder="Nhập câu hỏi" style="flex:1" />
+    <input id="sid" placeholder="X-Session-Id (optional)" style="width: 240px" />
+    <button id="btn">Gửi</button>
+  </div>
+  <div id="log"></div>
+
+  <script>
+    const BASE = 'http://localhost:8000/api/v1';
+    const log = document.getElementById('log');
+    const q = document.getElementById('q');
+    const sid = document.getElementById('sid');
+    const btn = document.getElementById('btn');
+    let es;
+
+    function append(html) {
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      log.appendChild(div);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function closeES() {
+      if (es) { try { es.close(); } catch(_){} es = null; }
+    }
+
+    btn.addEventListener('click', () => {
+      closeES();
+      log.innerHTML = '';
+      const url = new URL(BASE + '/chat/stream');
+      url.searchParams.set('q', q.value || 'Xin chào');
+      es = new EventSource(url.toString());
+
+      // NOTE: Session header không set được qua EventSource, dùng cookie hoặc query nếu cần
+      // Ở đây demo đơn giản không gắn session.
+
+      es.addEventListener('start', (e) => {
+        append(`<div class="event">[start] ${e.data}</div>`);
+      });
+      es.addEventListener('retrieval', (e) => {
+        append(`<div class="event">[retrieval] ${e.data}</div>`);
+      });
+      es.addEventListener('sources', (e) => {
+        try {
+          const payload = JSON.parse(e.data);
+          const items = (payload.data?.sources || []).map(s => `#${s.chunk_id} (${s.score?.toFixed?.(3) ?? ''})`).join(', ');
+          append(`<div class="sources"><b>Nguồn</b>: ${items}</div>`);
+        } catch (err) { append(`<div class="event">[sources] ${e.data}</div>`); }
+      });
+      es.addEventListener('token', (e) => {
+        try {
+          const payload = JSON.parse(e.data);
+          append(`<span class="token">${payload.data.text}</span>`);
+        } catch (err) { append(`<span class="token">${e.data}</span>`); }
+      });
+      es.addEventListener('done', (e) => {
+        try {
+          const payload = JSON.parse(e.data);
+          const resp = payload.data?.response;
+          append(`<div class="event"><hr/>[done] citations=${resp?.num_citations ?? 0}</div>`);
+        } catch (err) { append(`<div class="event">[done] ${e.data}</div>`); }
+        closeES();
+      });
+      es.addEventListener('error', (e) => {
+        append(`<div class="event" style="color:red">[error] ${e.data || 'stream error'}</div>`);
+        closeES();
+      });
+    });
+  </script>
+</body>
+</html>
