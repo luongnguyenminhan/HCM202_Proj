@@ -8,99 +8,99 @@ from typing import List, Optional, TYPE_CHECKING
 from sqlmodel import Field, SQLModel, Relationship
 
 if TYPE_CHECKING:
-	from .chunk import Chunk
+    from .chunk import Chunk
 
 
 class DocumentBase(SQLModel):
-	"""Base model for document data"""
+    """Base model for document data"""
 
-	title: str = Field(max_length=255, index=True)
-	description: Optional[str] = None
-	file_path: Optional[str] = Field(default=None, max_length=500)
-	source: Optional[str] = Field(default=None, max_length=255)
+    title: str = Field(max_length=255, index=True)
+    description: Optional[str] = None
+    file_path: Optional[str] = Field(default=None, max_length=500)
+    source: Optional[str] = Field(default=None, max_length=255)
 
 
 class Document(DocumentBase, table=True):
-	"""Document table model"""
+    """Document table model"""
 
-	__tablename__ = 'documents'
+    __tablename__ = 'documents'
 
-	id: Optional[int] = Field(default=None, primary_key=True)
-	created_at: datetime = Field(default_factory=datetime.now)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    created_at: datetime = Field(default_factory=datetime.now)
 
-	# Relationships
-	chapters: List['Chapter'] = Relationship(back_populates='document')
+    # Relationships
+    chapters: List['Chapter'] = Relationship(back_populates='document')
 
 
 class ChapterBase(SQLModel):
-	"""Base model for chapter data"""
+    """Base model for chapter data"""
 
-	title: str = Field(max_length=255, index=True)
-	ordering: int = Field(default=0, index=True)
-	summary: Optional[str] = None
+    title: str = Field(max_length=255, index=True)
+    ordering: int = Field(default=0, index=True)
+    summary: Optional[str] = None
 
 
 class Chapter(ChapterBase, table=True):
-	"""Chapter table model"""
+    """Chapter table model"""
 
-	__tablename__ = 'chapters'
+    __tablename__ = 'chapters'
 
-	id: Optional[int] = Field(default=None, primary_key=True)
-	document_id: int = Field(foreign_key='documents.id', index=True)
-	created_at: datetime = Field(default_factory=datetime.now)
+    id: Optional[int] = Field(default=None, primary_key=True)
+    document_id: int = Field(foreign_key='documents.id', index=True)
+    created_at: datetime = Field(default_factory=datetime.now)
 
-	# Relationships
-	document: Document = Relationship(back_populates='chapters')
-	chunks: List['Chunk'] = Relationship(back_populates='chapter')
+    # Relationships
+    document: Document = Relationship(back_populates='chapters')
+    chunks: List['Chunk'] = Relationship(back_populates='chapter')
 
 
 # API Models
 class DocumentCreate(DocumentBase):
-	"""Model for creating new documents"""
+    """Model for creating new documents"""
 
-	pass
+    pass
 
 
 class DocumentUpdate(SQLModel):
-	"""Model for updating documents"""
+    """Model for updating documents"""
 
-	title: Optional[str] = Field(default=None, max_length=255)
-	description: Optional[str] = None
-	file_path: Optional[str] = Field(default=None, max_length=500)
-	source: Optional[str] = Field(default=None, max_length=255)
+    title: Optional[str] = Field(default=None, max_length=255)
+    description: Optional[str] = None
+    file_path: Optional[str] = Field(default=None, max_length=500)
+    source: Optional[str] = Field(default=None, max_length=255)
 
 
 class DocumentPublic(DocumentBase):
-	"""Public model for document responses"""
+    """Public model for document responses"""
 
-	id: int
-	created_at: datetime
+    id: int
+    created_at: datetime
 
 
 class ChapterCreate(ChapterBase):
-	"""Model for creating new chapters"""
+    """Model for creating new chapters"""
 
-	document_id: int
+    document_id: int
 
 
 class ChapterUpdate(SQLModel):
-	"""Model for updating chapters"""
+    """Model for updating chapters"""
 
-	title: Optional[str] = Field(default=None, max_length=255)
-	ordering: Optional[int] = None
-	summary: Optional[str] = None
+    title: Optional[str] = Field(default=None, max_length=255)
+    ordering: Optional[int] = None
+    summary: Optional[str] = None
 
 
 class ChapterPublic(ChapterBase):
-	"""Public model for chapter responses"""
+    """Public model for chapter responses"""
 
-	id: int
-	document_id: int
-	created_at: datetime
+    id: int
+    document_id: int
+    created_at: datetime
 
 
 # Response models with relationships
 class DocumentWithChapters(DocumentPublic):
-	"""Document with its chapters included"""
+    """Document with its chapters included"""
 
-	chapters: List[ChapterPublic] = []
+    chapters: List[ChapterPublic] = []
