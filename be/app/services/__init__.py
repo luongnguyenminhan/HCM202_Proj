@@ -11,10 +11,10 @@ from .report import ReportService
 from .vector import QdrantVectorService
 
 __all__ = [
-    "RAGService",
-    "DocumentService",
-    "ArticleService",
-    "CorpusService",
-    "ReportService",
-    "QdrantVectorService",
+	'RAGService',
+	'DocumentService',
+	'ArticleService',
+	'CorpusService',
+	'ReportService',
+	'QdrantVectorService',
 ]
