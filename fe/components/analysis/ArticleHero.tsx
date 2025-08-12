@@ -9,9 +9,10 @@ export default function ArticleHero({ title }: { title: string }) {
       </h1>
 
       <div className="my-6">
-        <div className="aspect-[16/9] w-full rounded-2xl border border-[color:var(--color-border)] bg-surface" />
+        <div className="aspect-[16/9] w-full rounded-2xl border border-[color:var(--color-border)] bg-surface" style={background=""}/>
+          
         <p className="mt-2 text-center text-sm text-foreground/60">
-          Ảnh minh hoạ
+          Dĩ bất biến, ứng vạn biến — tư tưởng nền tảng truyền cảm hứng cho ngoại giao “Cây Tre”
         </p>
       </div>
     </header>

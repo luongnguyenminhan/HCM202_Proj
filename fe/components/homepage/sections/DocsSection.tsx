@@ -63,7 +63,7 @@ export default function DocsSection() {
 
       <div
         id="docs-detail"
-        className="mx-auto max-w-4xl px-4 mt-10"
+        className="mx-auto px-4 mt-10"
         aria-hidden={!selection}
         aria-live="polite"
         style={{

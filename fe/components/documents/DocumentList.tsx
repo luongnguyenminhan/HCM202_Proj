@@ -1,7 +1,12 @@
 "use client";
 import { useRef, useState, useLayoutEffect, useEffect, useId } from "react";
 
-export type Chapter = { id: string; title: string; summary: string };
+export type Chapter = { 
+  id: string; 
+  title: string; 
+  summary: string;
+  content?: string;
+};
 export type Doc = {
   id: string;
   title: string;
@@ -21,7 +26,8 @@ export default function DocumentList({
   onSeeDetail: (docId: string, chapterId: string) => void;
 }) {
   return (
-    <div className="mt-6 grid gap-8 md:grid-cols-2">
+    // 1 cột (mobile) → 2 cột (md) → 3 cột (lg)
+    <div className="mt-6 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {docs.map((doc) => (
         <DocCard
           key={doc.id}
@@ -35,7 +41,6 @@ export default function DocumentList({
   );
 }
 
-/** One document card + collapsible list of chapters */
 function DocCard({
   doc,
   open,
@@ -47,26 +52,22 @@ function DocCard({
   onToggle: () => void;
   onSeeDetail: (docId: string, chapterId: string) => void;
 }) {
-  const regionId = useId(); // unique id for aria-controls
-  const headingId = useId();
+  const regionId = useId();
 
   return (
-    <div className="rounded-2xl border border-[color:var(--color-border)] p-6 pb-7">
+    <div className="h-full rounded-2xl border border-[color:var(--color-border)] p-5">
+      {/* Chỉ giữ tiêu đề, BỎ summary của title lớn */}
       <button
         onClick={onToggle}
         className="w-full text-left"
         aria-expanded={open}
         aria-controls={regionId}
-        aria-labelledby={headingId}
       >
-        <h3 id={headingId} className="text-lg font-semibold">
-          {doc.title}
-        </h3>
-        <p className="mt-1 text-foreground/75">{doc.summary}</p>
+        <h3 className="text-base font-semibold md:text-lg">{doc.title}</h3>
       </button>
 
-      <Collapsible id={regionId} labelledBy={headingId} open={open}>
-        <div className="mt-4 space-y-3 pb-4">
+      <Collapsible id={regionId} open={open}>
+        <div className="mt-3 space-y-2">
           {doc.chapters.map((ch, idx) => (
             <div key={ch.id} className="rounded-xl border">
               <div className="flex items-center justify-between px-3 py-2">
@@ -91,72 +92,51 @@ function DocCard({
   );
 }
 
-/** Height-animated collapsible. No `any`, accessible & smooth. */
 function Collapsible({
   id,
-  labelledBy,
   open,
   children,
 }: {
   id?: string;
-  labelledBy?: string;
   open: boolean;
   children: React.ReactNode;
 }) {
   const innerRef = useRef<HTMLDivElement>(null);
   const [height, setHeight] = useState(0);
 
-  // Measure before paint to avoid flicker on first expand
   useLayoutEffect(() => {
     const el = innerRef.current;
     if (!el) return;
-
     const measure = () => setHeight(el.scrollHeight);
     measure();
-
-    // Re-measure when content changes
-    let ro: ResizeObserver | undefined;
-    if (typeof ResizeObserver !== "undefined") {
-      ro = new ResizeObserver(measure);
-      ro.observe(el);
-    }
-
-    // Re-measure on viewport resize (text wrapping changes height)
-    const onWinResize = () => measure();
-    window.addEventListener("resize", onWinResize);
-
-    return () => {
-      ro?.disconnect();
-      window.removeEventListener("resize", onWinResize);
-    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
   }, []);
 
-  // When opening, sync to current content height
   useEffect(() => {
     const el = innerRef.current;
-    if (!el) return;
-    if (open) setHeight(el.scrollHeight);
+    if (open && el) setHeight(el.scrollHeight);
   }, [open]);
 
   return (
     <div
       id={id}
-      role="region"
-      aria-labelledby={labelledBy}
       aria-hidden={!open}
       style={{
-        height: open ? height : 0,
+        height: open ? height + 2 : 0, // +2px đệm để không bị cắt viền
         transition:
           "height 300ms cubic-bezier(0.22,1,0.36,1), opacity 240ms ease",
         opacity: open ? 1 : 0,
         overflow: "hidden",
         willChange: "height",
-        // Prevent clicks/tabbing when closed (fallback for inert)
-        pointerEvents: open ? "auto" : "none",
-        contain: "layout style paint", // reduce repaints during animation
       }}
     >
-      <div ref={innerRef}>{children}</div>
+      {/* flow-root + pb-1 phá margin-collapse ở đáy */}
+      <div ref={innerRef} className="flow-root pb-1">
+        {children}
+      </div>
     </div>
   );
 }
+
