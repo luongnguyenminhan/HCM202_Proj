@@ -76,6 +76,20 @@
       .then(r => r.json()).then(console.log)
     ```
 
+- **GET `/chat/stream`**
+  - **Mục đích**: SSE streaming trả lời chat theo LangGraph agent.
+  - **Query**: `q: string (1–1000)`, `include_debug?: boolean=false`
+  - **Headers**: `X-Session-Id?: string`
+  - **Response**: `text/event-stream` với event dạng:
+    - `start`, `retrieval`, `sources`, `token`, `done`, `error`
+  - **Ví dụ (EventSource)**:
+
+    ```javascript
+    const es = new EventSource('http://localhost:8000/api/v1/chat/stream?q=' + encodeURIComponent('Tư tưởng HCM về đạo đức?'))
+    es.addEventListener('token', e => console.log(JSON.parse(e.data).data.text))
+    es.addEventListener('done', e => { console.log(JSON.parse(e.data).data.response); es.close() })
+    ```
+
  - **GET `/docs/chunks`**
    - **Mục đích**: Lấy danh sách chunks theo `chapter_id` có phân trang; nếu có `q` sẽ trả offsets highlight cho từng chunk.
    - **Query**: `chapter_id: number`, `page?: number=1`, `limit?: number=20 (≤100)`, `q?: string`
