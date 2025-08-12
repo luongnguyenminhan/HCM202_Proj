@@ -1,20 +1,38 @@
 version: '3.8'
 
 services:
-  frontend:
-    build:
-      context: ./fe
-      dockerfile: Dockerfile
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant-local
     ports:
-      - "30002:3000"
-    environment:
-      NODE_ENV: development
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_storage:/qdrant/storage
     restart: unless-stopped
+
+  # frontend:
+  #   build:
+  #     context: ./fe
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "30002:3000"
+  #   environment:
+  #     NODE_ENV: development
+  #   restart: unless-stopped
 
   backend:
     build:
       context: ./be
       dockerfile: Dockerfile
     ports:
-      - "80002:8000"
+      - "8000:8000"
+    env_file:
+      - ./be/.env
+    environment:
+      QDRANT_HOST: qdrant
+      QDRANT_PORT: 6333
     restart: unless-stopped
+
+volumes:
+  qdrant_storage:

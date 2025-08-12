@@ -12,6 +12,7 @@ from .color import (
     print_warning,
     print_error,
 )
+from .embedding import get_embedding_provider
 
 __all__ = [
     "get_system_stats",
@@ -22,4 +23,5 @@ __all__ = [
     "print_success",
     "print_warning",
     "print_error",
+    "get_embedding_provider",
 ]

@@ -17,4 +17,9 @@ services:
       dockerfile: Dockerfile
     ports:
       - "80001:8000"
+    env_file:
+      - ./be/.env
+    environment:
+      QDRANT_HOST: 160.191.88.194
+      QDRANT_PORT: 6333
     restart: unless-stopped

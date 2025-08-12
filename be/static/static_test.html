@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Static API Test – HCM RAG</title>
+    <style>
+      :root { color-scheme: light dark; }
+      body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; margin: 24px; line-height: 1.45; }
+      h1 { font-size: 20px; margin: 0 0 16px; }
+      .cfg { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-bottom: 16px; }
+      input { padding: 8px; min-width: 280px; }
+      button { padding: 8px 12px; cursor: pointer; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; }
+      .card { border: 1px solid #8884; border-radius: 8px; padding: 12px; }
+      .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 8px 0; }
+      pre { overflow: auto; background: #0001; padding: 8px; border-radius: 6px; max-height: 360px; }
+      .ok { color: green; }
+      .err { color: crimson; }
+      small { opacity: 0.7; }
+      textarea { width: 100%; min-height: 100px; padding: 8px; }
+      .label { font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>Static API Test – HCM RAG</h1>
+    <div class="cfg">
+      <label>Base URL:</label>
+      <input id="baseUrl" value="http://localhost:8000" />
+      <button onclick="setLocal()">Local dev (8000)</button>
+      <button onclick="setLocalDocker()">Local docker (80002)</button>
+      <button onclick="ping()">Ping</button>
+      <small id="pingStatus"></small>
+    </div>
+
+    <div class="grid">
+      <section class="card">
+        <div class="row">
+          <strong>GET /api/v1/health</strong>
+          <button onclick="call('/api/v1/health', 'outHealth')">Fetch</button>
+        </div>
+        <pre id="outHealth"></pre>
+      </section>
+
+      <section class="card">
+        <div class="row">
+          <strong>GET /api/v1/stats</strong>
+          <button onclick="call('/api/v1/stats', 'outStats')">Fetch</button>
+        </div>
+        <pre id="outStats"></pre>
+      </section>
+
+      <section class="card">
+        <div class="row">
+          <strong>GET /api/v1/special-analysis</strong>
+          <button onclick="call('/api/v1/special-analysis', 'outSpecial')">Fetch</button>
+        </div>
+        <pre id="outSpecial"></pre>
+      </section>
+
+      <section class="card">
+        <div class="row">
+          <strong>GET /api/v1/homepage/featured</strong>
+          <button onclick="call('/api/v1/homepage/featured', 'outFeatured')">Fetch</button>
+        </div>
+        <pre id="outFeatured"></pre>
+      </section>
+
+      <section class="card">
+        <div class="row"><strong>POST /api/v1/chat/query</strong></div>
+        <div class="row">
+          <span class="label">Question</span>
+          <input id="chatQ" value="Tư tưởng Hồ Chí Minh về đạo đức?" />
+          <label><input type="checkbox" id="chatDebug" /> include_debug</label>
+          <button onclick="chatQuery()">Send</button>
+        </div>
+        <pre id="outChat"></pre>
+        <div class="row">
+          <button onclick="copyAnswer()">Copy answer</button>
+          <button onclick="viewSources()">View sources</button>
+        </div>
+        <pre id="outChatSources"></pre>
+      </section>
+
+      <section class="card">
+        <div class="row"><strong>POST /api/v1/corpus/upload</strong></div>
+        <div class="row">
+          <input type="file" id="file" />
+          <input id="title" placeholder="Title" value="Demo tài liệu" />
+          <input id="desc" placeholder="Description" value="Mô tả" />
+          <input id="source" placeholder="Source" value="upload" />
+        </div>
+        <div class="row">
+          <input id="adminToken" placeholder="X-Admin-Token (optional)" />
+          <button onclick="uploadDoc()">Upload</button>
+          <small>Chấp nhận: PDF/DOCX</small>
+        </div>
+        <pre id="outUpload"></pre>
+      </section>
+
+      <section class="card">
+        <div class="row"><strong>DELETE /api/v1/corpus/delete?document_id=</strong></div>
+        <div class="row">
+          <input id="docId" placeholder="document_id" />
+          <input id="adminTokenDel" placeholder="X-Admin-Token (optional)" />
+          <button onclick="deleteDoc()">Delete</button>
+        </div>
+        <pre id="outDelete"></pre>
+      </section>
+    </div>
+
+    <script>
+      function byId(id) { return document.getElementById(id); }
+      function getBase() { return byId('baseUrl').value.replace(/\/$/, ''); }
+      function pretty(x) { return JSON.stringify(x, null, 2); }
+
+      async function ping() {
+        const base = getBase();
+        const el = byId('pingStatus');
+        el.textContent = 'Đang ping...';
+        el.className = '';
+        try {
+          const r = await fetch(base + '/ping');
+          const j = await r.json();
+          el.textContent = 'OK: ' + (j.message || 'pong');
+          el.className = 'ok';
+        } catch (e) {
+          el.textContent = 'Lỗi: ' + e;
+          el.className = 'err';
+        }
+      }
+
+      async function call(path, outId) {
+        const out = byId(outId);
+        out.textContent = 'Loading...';
+        try {
+          const r = await fetch(getBase() + path);
+          const j = await r.json();
+          out.textContent = pretty(j);
+        } catch (e) {
+          out.textContent = 'Error: ' + e;
+        }
+      }
+
+      async function chatQuery() {
+        const out = byId('outChat');
+        out.textContent = 'Loading...';
+        try {
+          const body = {
+            question: byId('chatQ').value,
+            include_debug: byId('chatDebug').checked,
+          };
+          const r = await fetch(getBase() + '/api/v1/chat/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          const j = await r.json();
+          out.textContent = pretty(j);
+        } catch (e) { out.textContent = 'Error: ' + e; }
+      }
+
+      function copyAnswer() {
+        try {
+          const data = JSON.parse(byId('outChat').textContent || '{}');
+          const text = data && data.answer ? data.answer : '';
+          if (!text) { alert('Chưa có answer'); return; }
+          navigator.clipboard.writeText(text);
+          alert('Copied');
+        } catch (_) { alert('Không parse được JSON'); }
+      }
+
+      function viewSources() {
+        const out = byId('outChatSources');
+        try {
+          const data = JSON.parse(byId('outChat').textContent || '{}');
+          if (!data || !Array.isArray(data.sources)) { out.textContent = 'No sources'; return; }
+          const lines = data.sources.map(s => `doc=${s.document_id} ch=${s.chapter_id} chunk=${s.chunk_id} score=${s.score}\n${s.text}`);
+          out.textContent = lines.join('\n\n');
+        } catch (_) { out.textContent = 'Không parse được JSON'; }
+      }
+
+      async function uploadDoc() {
+        const out = byId('outUpload');
+        out.textContent = 'Uploading...';
+        try {
+          const f = byId('file').files[0];
+          if (!f) { out.textContent = 'Chọn file trước.'; return; }
+          const form = new FormData();
+          form.append('file', f);
+          form.append('title', byId('title').value || 'Untitled');
+          if (byId('desc').value) form.append('description', byId('desc').value);
+          if (byId('source').value) form.append('source', byId('source').value);
+
+          const headers = {};
+          const token = byId('adminToken').value;
+          if (token) headers['X-Admin-Token'] = token;
+
+          const r = await fetch(getBase() + '/api/v1/corpus/upload', {
+            method: 'POST',
+            headers,
+            body: form,
+          });
+          const j = await r.json();
+          out.textContent = pretty(j);
+        } catch (e) { out.textContent = 'Error: ' + e; }
+      }
+
+      async function deleteDoc() {
+        const out = byId('outDelete');
+        out.textContent = 'Deleting...';
+        try {
+          const id = (byId('docId').value || '').trim();
+          if (!id) { out.textContent = 'Nhập document_id'; return; }
+          const headers = {};
+          const token = byId('adminTokenDel').value;
+          if (token) headers['X-Admin-Token'] = token;
+          const r = await fetch(getBase() + '/api/v1/corpus/delete?document_id=' + encodeURIComponent(id), {
+            method: 'DELETE', headers,
+          });
+          const j = await r.json();
+          out.textContent = pretty(j);
+        } catch (e) { out.textContent = 'Error: ' + e; }
+      }
+
+      function setLocal() { byId('baseUrl').value = 'http://localhost:8000'; }
+      function setLocalDocker() { byId('baseUrl').value = 'http://localhost:80002'; }
+    </script>
+  </body>
+  </html>
+
+

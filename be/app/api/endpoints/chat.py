@@ -11,6 +11,7 @@ from app.schemas.common_types import (
     ChatReportRequest,
     ChatReportResponse,
 )
+from app.utils import print_info, print_error, print_success
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -37,11 +38,18 @@ async def chat_query(
     3. Generate answer with LLM
     """
     try:
+        print_info(
+            f"/chat/query: question='{query.question[:80]}...' debug={query.include_debug}"
+        )
         response = await rag_service.query(
             question=query.question, include_debug=query.include_debug
         )
+        print_success(f"/chat/query: answered with {len(response.sources)} sources")
         return response
+    except HTTPException:
+        raise
     except Exception as e:
+        print_error(f"/chat/query failed: {e}")
         raise HTTPException(status_code=500, detail=f"RAG query failed: {str(e)}")
 
 
@@ -55,9 +63,12 @@ async def report_chat_response(
     Saves report for admin review.
     """
     try:
+        print_info(f"/chat/report: reference_id={report.reference_id}")
         response = await report_service.create_report(
             reference_id=report.reference_id, reason=report.reason, source=report.source
         )
+        print_success(f"/chat/report: created id={response.report_id}")
         return response
     except Exception as e:
+        print_error(f"/chat/report failed: {e}")
         raise HTTPException(status_code=500, detail=f"Report creation failed: {str(e)}")

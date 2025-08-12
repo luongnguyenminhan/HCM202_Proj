@@ -4,6 +4,7 @@ Provides endpoints for chatbot, document management, and content.
 """
 
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
@@ -11,6 +12,7 @@ from contextlib import asynccontextmanager
 from app.core.database import create_db_and_tables
 from app.api import api_router
 from app.utils import print_info, print_success, print_error
+from app.services import QdrantVectorService
 
 
 @asynccontextmanager
@@ -26,6 +28,13 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         print_error(f"❌ Database initialization failed: {e}")
         # Don't crash the app, continue without database
+
+    # Ensure Qdrant collection
+    try:
+        QdrantVectorService().ensure_collection()
+        print_success("✅ Qdrant collection ready")
+    except Exception as e:
+        print_error(f"⚠️ Qdrant not ready: {e}")
 
     yield
 
@@ -83,15 +92,30 @@ async def ping():
 # Error handlers
 @app.exception_handler(404)
 async def not_found_handler(request, exc):
-    return {"error": "Not found", "detail": "The requested resource was not found"}
+    return JSONResponse(
+        status_code=404,
+        content={
+            "error": "Not found",
+            "detail": "The requested resource was not found",
+        },
+    )
 
 
 @app.exception_handler(500)
 async def internal_error_handler(request, exc):
-    return {
-        "error": "Internal server error",
-        "detail": "Something went wrong on our end",
-    }
+    return JSONResponse(
+        status_code=500,
+        content={
+            "error": "Internal server error",
+            "detail": "Something went wrong on our end",
+        },
+    )
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """No favicon provided"""
+    return Response(status_code=204)
 
 
 if __name__ == "__main__":

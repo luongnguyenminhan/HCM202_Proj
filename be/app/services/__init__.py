@@ -8,6 +8,7 @@ from .document import DocumentService
 from .article import ArticleService
 from .corpus import CorpusService
 from .report import ReportService
+from .vector import QdrantVectorService
 
 __all__ = [
     "RAGService",
@@ -15,4 +16,5 @@ __all__ = [
     "ArticleService",
     "CorpusService",
     "ReportService",
+    "QdrantVectorService",
 ]

@@ -44,13 +44,15 @@ class PaginationResponse(BaseModel):
 
 # RAG specific types
 class ChatSource(BaseModel):
-    """Source information for RAG responses"""
+    """Nguồn trích dẫn cho RAG (structured)"""
 
     document_id: int
-    document_title: str
     chapter_id: int
-    chapter_title: str
-    quote: str
+    chunk_id: int
+    page_number: Optional[int] = None
+    text: str
+    score: Optional[float] = None
+    url: Optional[str] = None
 
 
 class ChatDebugInfo(BaseModel):
@@ -66,6 +68,7 @@ class ChatResponse(BaseModel):
 
     answer: str
     sources: List[ChatSource]
+    num_citations: int
     debug: Optional[ChatDebugInfo] = None
 
 
