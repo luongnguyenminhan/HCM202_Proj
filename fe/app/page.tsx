@@ -1,31 +1,57 @@
-import { Metadata } from "next";
-import HeroBanner from "@/components/homepage/HeroBanner";
-import FeaturedArticles from "@/components/homepage/FeaturedArticles";
-import PRSection from "@/components/homepage/PRSection";
-import LatestArticles from "@/components/homepage/LatestArticles";
+"use client";
 
-export const metadata: Metadata = {
-  title: "Home | HCM Thought — RAG",
-  description: "Skeleton Home với layout grid và placeholder components",
-  alternates: { canonical: "/" },
-};
+import { useEffect, useState } from "react";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
+import SplitShell from "@/components/layout/SplitShell";
+import HomeSection from "@/components/homepage/sections/HomeSection";
+import DocsSection from "@/components/homepage/sections/DocsSection";
+import AnalysisSection from "@/components/homepage/sections/AnalysisSection";
 
-export default function Home() {
+/**
+ * Landing page
+ * - Composes all sections inside a split layout (chat dock + content).
+ * - On first load / refresh, force URL to `/#home` and align content under header.
+ */
+export default function Page() {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const TARGET = "#home";
+    const HEADER_H = 72;
+
+    const goHome = () => {
+      if (location.hash !== TARGET) {
+        history.replaceState(null, "", TARGET);
+      }
+      const el = document.getElementById("home");
+      if (el) {
+        const y = el.getBoundingClientRect().top + window.scrollY - HEADER_H;
+        window.scrollTo({ top: y, behavior: "auto" });
+      } else {
+        window.scrollTo({ top: 0, behavior: "auto" });
+      }
+    };
+
+    // wait one frame to ensure sections are in the DOM before scrolling
+    requestAnimationFrame(goHome);
+  }, []);
+
   return (
-    <div className="w-full h-full p-4 grid gap-4">
-      {/* Hero + Featured/PR */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2">
-          <HeroBanner />
-        </div>
-        <div className="lg:col-span-1 grid gap-4">
-          <FeaturedArticles />
-          <PRSection />
-        </div>
-      </div>
+    <>
+      <Header inPage onOpenChat={() => setOpen(true)} />
 
-      {/* Articles carousel */}
-      <LatestArticles />
-    </div>
+      <SplitShell
+        open={open}
+        onOpenChat={() => setOpen(true)}
+        onCloseChat={() => setOpen(false)}
+      >
+        <HomeSection onOpenChat={() => setOpen(true)} />
+        <DocsSection />
+        <AnalysisSection />
+      </SplitShell>
+
+      <Footer />
+    </>
   );
 }

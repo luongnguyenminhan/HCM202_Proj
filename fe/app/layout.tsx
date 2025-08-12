@@ -1,43 +1,27 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "antd/dist/reset.css";
+// app/layout.tsx
 import "./globals.css";
-import Header from "@/components/layout/Header";
-import Footer from "@/components/layout/Footer";
+import type { Metadata } from "next";
+import { Inter, Roboto_Mono } from "next/font/google";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+// Gắn vào đúng biến mà bạn đã khai báo trong globals.css
+const sans = Inter({ subsets: ["latin"], variable: "--font-geist-sans" });
+const mono = Roboto_Mono({ subsets: ["latin"], variable: "--font-geist-mono" });
 
 export const metadata: Metadata = {
-  title: "HCM Thought — RAG",
-  description: "Skeleton UI các trang (Home, Chat, Documents, Articles, Admin)",
-  metadataBase: new URL("https://example.com"),
+  title: "HCM202 – Landing",
+  description: "Kho tư liệu, tra cứu nhanh và phân tích.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="vi">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased app-body`}>
-        <header className="app-header">
-          <Header />
-        </header>
-        <main className="app-main">
-          {children}
-        </main>
-        <footer className="app-footer">
-          <Footer />
-        </footer>
+    <html lang="vi" className={`${sans.variable} ${mono.variable}`}>
+      {/* Dùng token Tailwind v4 đã định nghĩa trong @theme inline */}
+      <body className="bg-background text-foreground font-sans antialiased">
+        {children}
       </body>
     </html>
   );
