@@ -1,4 +1,8 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+const STRIPPED_BASE = RAW_API_BASE.replace(/\/+$/, "");
+const API_BASE = /\/api\/v\d+$/i.test(STRIPPED_BASE)
+    ? STRIPPED_BASE
+    : `${STRIPPED_BASE}/api/v1`;
 
 export type ChatSource = {
     document_id: number;
@@ -63,9 +67,15 @@ export function streamChat(
     const handle = (type: StreamEventType) => (ev: MessageEvent) => {
         try {
             const parsed = JSON.parse(ev.data) as ChatStreamEvent;
-            if (onEvent) {
-                onEvent({ type, data: parsed.data || {} });
+            if (!onEvent) return;
+            // Chuẩn hoá payload để FE dùng thống nhất: token event luôn có data.token
+            if (type === "token") {
+                const text = (parsed as any)?.data?.text ?? (parsed as any)?.data?.token ?? "";
+                const data = { ...(parsed.data || {}), token: text } as Record<string, unknown>;
+                onEvent({ type, data });
+                return;
             }
+            onEvent({ type, data: parsed.data || {} });
         } catch (e) {
             if (onError) {
                 onError(e);

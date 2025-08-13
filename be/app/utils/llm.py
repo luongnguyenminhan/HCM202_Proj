@@ -4,12 +4,33 @@ LLM utilities using LangChain with Google Generative AI.
 
 from __future__ import annotations
 
-from typing import Optional, List, Tuple, AsyncIterator
+from typing import Optional, List, Tuple, AsyncIterator, Literal
 
-from app.core.config import GOOGLE_API_KEY, LLM_MODEL_ID
+from app.core.config import (
+    GOOGLE_API_KEY,
+    LLM_MODEL_ID,
+    UNSTRUCTURED_API_KEY,
+    UNSTRUCTURED_API_URL,
+)
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import ChatPromptTemplate
+
+# Optional imports guarded to avoid hard failure if not installed yet
+try:  # PyMuPDF4LLM for local PDF parsing
+    import pymupdf4llm  # type: ignore
+except Exception:  # pragma: no cover - optional at runtime
+    pymupdf4llm = None  # type: ignore
+
+try:  # LangChain Unstructured loader (API mode)
+    from langchain_unstructured import UnstructuredLoader  # type: ignore
+except Exception:  # pragma: no cover - optional at runtime
+    UnstructuredLoader = None  # type: ignore
+
+try:  # Unstructured API client
+    from unstructured_client import UnstructuredClient  # type: ignore
+except Exception:  # pragma: no cover - optional at runtime
+    UnstructuredClient = None  # type: ignore
 
 
 def get_chat_model(model: str = LLM_MODEL_ID) -> ChatGoogleGenerativeAI:
@@ -75,3 +96,62 @@ async def stream_answer(
             text = str(chunk)
         if text:
             yield text
+
+
+# =====================
+# PDF Loading Utilities
+# =====================
+
+
+def load_pdf_text(
+    file_path: str,
+    strategy: Literal["pymupdf", "unstructured", "auto"] = "auto",
+    max_characters: int = 1_000_000,
+) -> str:
+    """Load nội dung PDF thành text.
+
+    - "pymupdf": dùng PyMuPDF4LLM (nhanh, local)
+    - "unstructured": dùng UnstructuredLoader qua API (cần UNSTRUCTURED_API_KEY)
+    - "auto": ưu tiên PyMuPDF, fallback Unstructured nếu có API Key
+    """
+    if strategy == "pymupdf" or (strategy == "auto"):
+        if pymupdf4llm is not None:
+            # to_markdown trả về Markdown giữ cấu trúc; vẫn dùng làm text input cho RAG
+            return pymupdf4llm.to_markdown(file_path)
+        if strategy == "pymupdf":
+            raise ImportError("pymupdf4llm chưa được cài đặt")
+
+    # Unstructured branch
+    if strategy in ("unstructured", "auto"):
+        if UnstructuredLoader is None:
+            if strategy == "unstructured":
+                raise ImportError("langchain-unstructured chưa được cài đặt")
+            # when auto: continue to final error below
+        else:
+            if not UNSTRUCTURED_API_KEY:
+                raise ValueError(
+                    "UNSTRUCTURED_API_KEY chưa được thiết lập cho chế độ unstructured"
+                )
+            if UnstructuredClient is None:
+                raise ImportError("unstructured-client chưa được cài đặt")
+
+            client = UnstructuredClient(
+                api_key_auth=UNSTRUCTURED_API_KEY,
+                server_url=UNSTRUCTURED_API_URL,
+            )
+            loader = UnstructuredLoader(
+                file_path,
+                partition_via_api=True,
+                client=client,
+                # Reproduce mode="single": one big doc
+                chunking_strategy="basic",
+                max_characters=max_characters,
+                include_orig_elements=False,
+            )
+            docs = loader.load()
+            if not docs:
+                return ""
+            # Gộp thành 1 text
+            return "\n\n".join(d.page_content for d in docs)
+
+    raise RuntimeError("Không thể load PDF: không có backend khả dụng")
