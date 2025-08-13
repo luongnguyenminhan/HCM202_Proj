@@ -11,6 +11,7 @@ export default function InputBar({
   onSend: (value: string) => void;
 }) {
   const [value, setValue] = useState("");
+  const [sending, setSending] = useState(false);
 
   return (
     <div className="border-t p-3">
@@ -19,7 +20,12 @@ export default function InputBar({
           e.preventDefault();
           const v = value.trim();
           if (!v) return;
-          onSend(v);
+          setSending(true);
+          try {
+            onSend(v);
+          } finally {
+            setSending(false);
+          }
           setValue("");
           inputRef.current?.focus();
         }}
@@ -32,8 +38,8 @@ export default function InputBar({
           className="flex-1 rounded-xl border px-3 py-2 outline-none"
           placeholder="Nhập câu hỏi..."
         />
-        <button className="rounded-xl bg-brand px-4 py-2 text-surface hover:bg-brand-600">
-          Gửi
+        <button className="rounded-xl bg-brand px-4 py-2 text-surface hover:bg-brand-600 disabled:opacity-60" disabled={sending}>
+          {sending ? "..." : "Gửi"}
         </button>
       </form>
     </div>
