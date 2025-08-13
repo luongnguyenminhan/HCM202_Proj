@@ -48,15 +48,11 @@ def build_prompt(
     context: str,
     citations_text: str = "",
     memory_text: str = "",
-) -> ChatPromptTemplate:
-    """Build a structured prompt for RAG QA with persona, memory và nguồn tham khảo."""
-    # Build prompt using LangChain's recommended input variables
-    template = (
-        "<system>"
-        + SYSTEM_PROMPT
-        + "</system>\n<context>\n{context}\n</context>\n{memory_section}<question>\n{question}\n</question>\nYêu cầu trả lời:\n- Trả lời 3–5 câu, súc tích, đúng trọng tâm; có thể dùng gạch đầu dòng khi phù hợp.\n- Nếu là chit-chat: thân thiện, ngắn gọn; không cần trích dẫn.\n{citations_section}"
-    )
+) -> str:
+    """Xây dựng prompt hoàn chỉnh (string) để tránh lỗi parse biến do ký tự `{}` trong context.
 
+    Trả về chuỗi đã chèn sẵn persona, context, memory, citations.
+    """
     memory_section = ""
     if memory_text:
         memory_section = f"<memory>\n{memory_text}\n</memory>\n"
@@ -64,15 +60,21 @@ def build_prompt(
     if citations_text:
         citations_section = f"Các nguồn tham khảo có thể dùng:\n{citations_text}\n"
 
-    # Compose the full prompt string
-    prompt_str = template.format(
-        context=context,
-        memory_section=memory_section,
-        question=question,
-        citations_section=citations_section,
+    prompt_str = (
+        "<system>"
+        + SYSTEM_PROMPT
+        + "</system>\n"
+        + "<context>\n"
+        + context
+        + "\n</context>\n"
+        + memory_section
+        + "<question>\n"
+        + question
+        + "\n</question>\n"
+        + "Yêu cầu trả lời:\n- Trả lời 3–5 câu, súc tích, đúng trọng tâm; có thể dùng gạch đầu dòng khi phù hợp.\n- Nếu là chit-chat: thân thiện, ngắn gọn; không cần trích dẫn.\n"
+        + citations_section
     )
-    # Use only variables that are present in the template
-    return ChatPromptTemplate.from_template(prompt_str)
+    return prompt_str
 
 
 async def stream_answer(
@@ -83,14 +85,13 @@ async def stream_answer(
 ) -> AsyncIterator[str]:
     """Stream từng token câu trả lời từ LLM (LangChain LCEL)."""
     chat = get_chat_model()
-    prompt = build_prompt(
+    prompt_text = build_prompt(
         question=question,
         context=context,
         citations_text=citations_text,
         memory_text=memory_text,
     )
-    chain = prompt | chat
-    async for chunk in chain.astream({}):
+    async for chunk in chat.astream(prompt_text):
         text = getattr(chunk, "content", None)
         if not text:
             text = str(chunk)

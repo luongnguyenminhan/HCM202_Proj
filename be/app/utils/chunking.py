@@ -18,6 +18,17 @@ try:
 except Exception:  # pragma: no cover
     PdfReader = None
 
+# Ưu tiên PyMuPDF4LLM nếu có (chất lượng trích xuất tốt hơn)
+try:
+    import fitz  # type: ignore  # PyMuPDF
+except Exception:  # pragma: no cover
+    fitz = None  # type: ignore
+
+try:
+    import pymupdf4llm  # type: ignore
+except Exception:  # pragma: no cover
+    pymupdf4llm = None  # type: ignore
+
 try:
     import docx  # python-docx
 except Exception:  # pragma: no cover
@@ -25,33 +36,54 @@ except Exception:  # pragma: no cover
 
 
 def extract_text_from_pdf(file_bytes: bytes) -> str:
+    # Thử PyMuPDF4LLM trước (nếu có)
+    if pymupdf4llm is not None and fitz is not None:
+        try:
+            doc = fitz.open(stream=file_bytes, filetype="pdf")
+            md_text = pymupdf4llm.to_markdown(doc)
+            try:
+                page_count = (
+                    getattr(doc, "page_count", None)
+                    or getattr(doc, "pageCount", None)
+                    or 0
+                )
+                print_debug(f"Đã tách PDF bằng PyMuPDF4LLM: {page_count} trang")
+            except Exception:
+                pass
+            return md_text
+        except Exception:
+            print_error("Lỗi PyMuPDF4LLM, fallback sang pypdf")
+
+    # Fallback: pypdf
     if PdfReader is None:
-        print_error('pypdf chưa cài đặt')
-        raise RuntimeError('pypdf not installed')
+        print_error("pypdf chưa cài đặt")
+        raise RuntimeError("pypdf not installed")
     from io import BytesIO
 
     reader = PdfReader(BytesIO(file_bytes))
     pages: List[str] = []
     for p in reader.pages:
         try:
-            pages.append(p.extract_text().replace('\n\n', '').replace('\n \n', '') or '')
+            pages.append(
+                p.extract_text().replace("\n\n", "\n").replace("\n \n", "\n ") or ""
+            )
         except Exception:
-            print_error('Lỗi extract_text trang PDF')
-            pages.append('')
-    print_debug(f'Đã tách {len(pages)} trang PDF')
-    return '\n\n'.join(pages)
+            print_error("Lỗi extract_text trang PDF")
+            pages.append("")
+    print_debug(f"Đã tách {len(pages)} trang PDF (pypdf)")
+    return "\n\n".join(pages)
 
 
 def extract_text_from_docx(file_bytes: bytes) -> str:
     if docx is None:
-        print_error('python-docx chưa cài đặt')
-        raise RuntimeError('python-docx not installed')
+        print_error("python-docx chưa cài đặt")
+        raise RuntimeError("python-docx not installed")
     from io import BytesIO
 
     doc = docx.Document(BytesIO(file_bytes))
     paras = [p.text for p in doc.paragraphs]
-    print_debug(f'Đã tách {len(paras)} đoạn DOCX')
-    return '\n'.join(paras)
+    print_debug(f"Đã tách {len(paras)} đoạn DOCX")
+    return "\n".join(paras)
 
 
 def naive_split_chapters(text: str) -> List[Tuple[str, str]]:
@@ -59,21 +91,21 @@ def naive_split_chapters(text: str) -> List[Tuple[str, str]]:
     lines = text.splitlines()
     chapters: List[Tuple[str, str]] = []
     buf: List[str] = []
-    current_title = 'Mở đầu'
-    pattern = re.compile(r'^(Chương\s+\d+\b.*|Chapter\s+\d+\b.*)$', re.I)
+    current_title = "Mở đầu"
+    pattern = re.compile(r"^(Chương\s+\d+\b.*|Chapter\s+\d+\b.*)$", re.I)
     for line in lines:
         if pattern.match(line.strip()):
             if buf:
-                chapters.append((current_title, '\n'.join(buf).strip()))
+                chapters.append((current_title, "\n".join(buf).strip()))
                 buf = []
             current_title = line.strip()
         else:
             buf.append(line)
     if buf:
-        chapters.append((current_title, '\n'.join(buf).strip()))
+        chapters.append((current_title, "\n".join(buf).strip()))
     if not chapters:
-        chapters.append(('Nội dung', text))
-    print_debug(f'Tách {len(chapters)} chương')
+        chapters.append(("Nội dung", text))
+    print_debug(f"Tách {len(chapters)} chương")
     return chapters
 
 
@@ -89,5 +121,5 @@ def chunk_by_chars(text: str, max_chars: int = 3000, overlap: int = 500) -> List
             break
         start = max(0, end - overlap)
     result = [c.strip() for c in chunks if c.strip()]
-    print_debug(f'Chia thành {len(result)} chunk')
+    print_debug(f"Chia thành {len(result)} chunk")
     return result
