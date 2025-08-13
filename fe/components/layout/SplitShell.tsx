@@ -1,17 +1,14 @@
 "use client";
 
-import { PropsWithChildren } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import ChatDock from "@/components/chatbot/ChatDock";
 
-/**
- * SplitShell
- * - Desktop: left chat dock (40%) + right content (60%), animates width.
- * - Mobile: when `open` true, show full-screen chat overlay.
- * - Important: we only MOUNT ChatDock when `open` to avoid auto-scroll on reload.
- */
+const HEADER_H = 72;
+const EASE = "cubic-bezier(0.22,1,0.36,1)";
+
 export default function SplitShell({
   open,
-  onOpenChat, // not used here but kept for API symmetry; can remove if you prefer
+  onOpenChat,
   onCloseChat,
   children,
 }: PropsWithChildren<{
@@ -19,61 +16,80 @@ export default function SplitShell({
   onOpenChat: () => void;
   onCloseChat: () => void;
 }>) {
-  const ease = "cubic-bezier(0.22,1,0.36,1)";
-  const paneH = "calc(100vh - 120px)";
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const lockIfMobile = () => {
+      if (open && window.innerWidth < 768) {
+        const prev = document.body.style.overflow;
+        document.body.dataset._prevOverflow = prev;
+        document.body.style.overflow = "hidden";
+      } else {
+        if ("_prevOverflow" in document.body.dataset) {
+          document.body.style.overflow =
+            document.body.dataset._prevOverflow || "";
+          delete document.body.dataset._prevOverflow;
+        }
+      }
+    };
+
+    lockIfMobile();
+    const onResize = () => lockIfMobile();
+    window.addEventListener("resize", onResize);
+    return () => {
+      window.removeEventListener("resize", onResize);
+      if ("_prevOverflow" in document.body.dataset) {
+        document.body.style.overflow =
+          document.body.dataset._prevOverflow || "";
+        delete document.body.dataset._prevOverflow;
+      }
+    };
+  }, [open]);
 
   return (
-    <div
-      data-open={open}
-      className={open ? "md:h-[calc(100vh-120px)] md:overflow-hidden" : ""}
-    >
-      <div className="flex w-full gap-0">
-        {/* LEFT: chat dock (desktop) */}
+    <div>
+      <div className="md:flex md:gap-0">
         <div
-          className="hidden md:block overflow-hidden border-r border-[color:var(--color-border)]"
-          style={{
-            width: open ? "40%" : "0%",
-            transition: `width 520ms ${ease}`,
-          }}
           aria-hidden={!open}
+          className="hidden md:block shrink-0"
+          style={{
+            width: open ? "40%" : "0px",
+            transition: `width 520ms ${EASE}`,
+          }}
         >
-          {open && (
-            <div
-              className="translate-x-2 opacity-0"
-              style={{
-                height: paneH,
-                transition: `opacity 420ms ${ease} 120ms, transform 420ms ${ease} 120ms`,
-                opacity: 1,
-                transform: "translateX(0)",
-              }}
-            >
-              <ChatDock onClose={onCloseChat} />
-            </div>
-          )}
+          <div
+            className="sticky z-30 bg-surface"
+            style={{
+              top: HEADER_H,
+              height: `calc(100vh - ${HEADER_H}px)`,
+              borderRight: "1px solid var(--color-border)",
+              overflow: "hidden",
+            }}
+          >
+            {open && <ChatDock onClose={onCloseChat} />}
+          </div>
         </div>
 
-        {/* RIGHT: content area (scrolls when chat is open) */}
-        <div
-          className={open ? "md:h-[calc(100vh-120px)] md:overflow-y-auto" : ""}
-          style={{
-            width: open ? "60%" : "100%",
-            transition: `width 520ms ${ease}`,
-          }}
-        >
-          <main className={open ? "px-4 md:px-6" : "px-2 md:px-6"}>
+        <div className="min-w-0 flex-1">
+          <main className={open ? "px-4 md:px-6 pb-10" : "px-2 md:px-6 pb-10"}>
             {children}
           </main>
         </div>
       </div>
 
-      {/* MOBILE: chat dock overlay (render only when open, mobile only) */}
       {open && (
-        <div className="fixed inset-0 z-40 md:hidden">
-          <div className="absolute inset-0 bg-black/30" onClick={onCloseChat} />
-          <div className="absolute inset-0">
-            <div className="h-full w-full bg-surface">
-              <ChatDock onClose={onCloseChat} />
-            </div>
+        <div
+          className="fixed inset-0 z-[60] md:hidden"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="absolute inset-0 bg-black/30"
+            onClick={onCloseChat}
+            aria-hidden
+          />
+          <div className="absolute inset-0 bg-surface">
+            <ChatDock onClose={onCloseChat} />
           </div>
         </div>
       )}

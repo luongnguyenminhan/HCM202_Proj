@@ -1,5 +1,5 @@
 import Image from "next/image";
-import hero from "@/public/images/cay_tre.png";
+// import hero from "@/public/images/cay_tre.png";
 
 export default function ArticleHero({ title }: { title: string }) {
   return (
@@ -14,17 +14,18 @@ export default function ArticleHero({ title }: { title: string }) {
 
       <figure className="my-6">
         <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-[color:var(--color-border)]">
-        <Image
-          src={hero}
-          alt="Minh hoạ cho bài phân tích"
-          placeholder="blur"
-          className="object-cover"
-          fill
-          sizes="(max-width: 768px) 100vw, 768px"
-        />
+          <Image
+            src="/images/cay_tre.png"
+            alt="Bot"
+            width={800}
+            height={500}
+            placeholder="blur"
+            blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO8pZBcAAAAASUVORK5CYII="
+          />
         </div>
         <figcaption className="mt-2 text-center text-sm text-foreground/60">
-          Dĩ bất biến, ứng vạn biến — tư tưởng nền tảng truyền cảm hứng cho ngoại giao “Cây Tre”
+          Dĩ bất biến, ứng vạn biến — tư tưởng nền tảng truyền cảm hứng cho
+          ngoại giao “Cây Tre”
         </figcaption>
       </figure>
     </header>

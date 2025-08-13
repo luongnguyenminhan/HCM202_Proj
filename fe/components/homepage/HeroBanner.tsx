@@ -1,6 +1,6 @@
 import { MouseEvent } from "react";
 import Image from "next/image";
-import hero from "@/public/images/bot.png";
+// import hero from "@/public/images/bot.png";
 
 export default function HeroBanner({
   onOpenChat,
@@ -22,7 +22,9 @@ export default function HeroBanner({
         <div>
           <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-brand md:text-5xl">
             Tư tưởng Hồ Chí Minh <br /> về{" "}
-            <span className="underline decoration-brand-700">Đoàn Kết Quốc Tế</span>
+            <span className="underline decoration-brand-700">
+              Đoàn Kết Quốc Tế
+            </span>
           </h1>
           <p className="mt-4 max-w-xl text-foreground/80 md:text-lg">
             Kho tư liệu chuẩn hoá, công cụ tra cứu nhanh, và phân tích súc tích.
@@ -52,12 +54,12 @@ export default function HeroBanner({
         <figure className="relative">
           <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl border border-[color:var(--color-border)] bg-surface shadow-sm">
             <Image
-              src={hero}
-              alt="Minh hoạ chatbot hỗ trợ tra cứu"
-              fill
+              src="/images/bot.png"
+              alt="Bot"
+              width={800}
+              height={500}
               placeholder="blur"
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, 768px"
+              blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO8pZBcAAAAASUVORK5CYII="
             />
           </div>
           <figcaption className="mt-3 text-center text-sm text-foreground/60">
