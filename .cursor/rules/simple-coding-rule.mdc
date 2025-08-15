@@ -24,5 +24,5 @@ alwaysApply: false
   - Cập nhật `be/docs/APIDocs.md`: mô tả endpoint, params, schema I/O, ví dụ.
   - Tuân theo `be/plan.md` khi bổ sung/đổi API.
 - No extra docs ngoài cập nhật `APIDocs.md` sau mỗi flow.
-- After complete an api route create a simple html file in `be/static/` with the same name as the route, this file should contain a simple description of the route and how to use it, this will be used to generate the documentation for the API. the api base url should be `http://localhost:8000` and the api docs url should be `http://localhost:8000/docs`. and use fetch with full endpoint url to test the api route.
+- After complete an api route create a simple html file in `be/static/` with the same name as the route, this file should contain a simple description of the route and how to use it, this will be used to generate the documentation for the API. the api base url should be `http://api.hcm202.wc504.io.vn` and the api docs url should be `http://api.hcm202.wc504.io.vn/docs`. and use fetch with full endpoint url to test the api route.
 - Use `app/core/config.py` for all config settings, not hardcoded in code.

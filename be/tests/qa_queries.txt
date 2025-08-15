@@ -1,0 +1,12 @@
+# Câu hỏi QA (dùng để test /chat/query và /chat/stream)
+# Mỗi dòng 1 câu hỏi
+Tư tưởng Hồ Chí Minh về giáo dục là gì?
+Những phẩm chất đạo đức cách mạng theo Hồ Chí Minh?
+Hồ Chí Minh nói gì về văn hóa dân tộc?
+Quan điểm của Bác về xây dựng con người mới?
+Tư tưởng HCM về đoàn kết toàn dân tộc?
+HCM nhìn nhận vai trò của thanh niên như thế nào?
+Chủ nghĩa nhân văn trong tư tưởng Hồ Chí Minh?
+Tư tưởng về độc lập dân tộc gắn với chủ nghĩa xã hội?
+Hồ Chí Minh đề cao vấn đề gì trong giáo dục đạo đức?
+Các nguyên tắc học đi đôi với hành theo tư tưởng HCM?

@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>/api/v1/docs/highlight</h1>
-  <p>Base URL: http://localhost:8000</p>
+  <p>Base URL: http://api.hcm202.wc504.io.vn</p>
   <form id="f">
     <label>Document ID: <input name="document_id" type="number" value="1"/></label>
     <label>Chapter ID: <input name="chapter_id" type="number"/></label>
@@ -23,7 +23,7 @@
       const fd = new FormData(e.target);
       const payload = Object.fromEntries(fd.entries());
       ['document_id','chapter_id','start_position','end_position'].forEach(k=>{ if(payload[k]==='') delete payload[k]; else payload[k]=Number(payload[k]); });
-      const res = await fetch('http://localhost:8000/api/v1/docs/highlight', {
+      const res = await fetch('http://api.hcm202.wc504.io.vn/api/v1/docs/highlight', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });

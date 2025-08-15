@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useLockBodyScroll } from "./hooks";
+import { postChatReport } from "@/services/chat";
 
 /**
  * ReportModal: lightweight feedback form for incorrect data.
@@ -18,6 +20,11 @@ export default function ReportModal({
 }) {
   const [submitted, setSubmitted] = useState(false);
   const titleRef = useRef<HTMLInputElement>(null);
+  const [title, setTitle] = useState("");
+  const [desc, setDesc] = useState("");
+  const [email, setEmail] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useLockBodyScroll(open);
 
@@ -30,10 +37,18 @@ export default function ReportModal({
 
   if (!open) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: call API then setSubmitted(true) on success
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+    try {
+      await postChatReport({ referenceId: title || "unknown", reason: desc.trim(), source: email ? `email:${email}` : undefined });
+      setSubmitted(true);
+    } catch (err: any) {
+      setError(err?.message || "Gửi báo cáo thất bại");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -48,6 +63,8 @@ export default function ReportModal({
               <label className="mb-1 block text-sm">Liên kết / Chủ đề</label>
               <input
                 ref={titleRef}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="w-full rounded-xl border px-3 py-2"
                 placeholder="Ví dụ: Chương 2, mục 3 hoặc dán URL"
               />
@@ -58,6 +75,8 @@ export default function ReportModal({
                 className="h-28 w-full resize-y rounded-xl border px-3 py-2"
                 placeholder="Mô tả phần thông tin sai, trích dẫn chưa khớp, bối cảnh..."
                 required
+                value={desc}
+                onChange={(e) => setDesc(e.target.value)}
               />
             </div>
             <div>
@@ -68,8 +87,14 @@ export default function ReportModal({
                 type="email"
                 className="w-full rounded-xl border px-3 py-2"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
+            {error ? (
+              <div className="text-sm text-red-600">{error}</div>
+            ) : null}
 
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
@@ -81,9 +106,10 @@ export default function ReportModal({
               </button>
               <button
                 type="submit"
-                className="rounded-xl bg-brand px-4 py-2 text-surface hover:bg-brand-600"
+                className="rounded-xl bg-brand px-4 py-2 text-surface hover:bg-brand-600 disabled:opacity-60"
+                disabled={loading}
               >
-                Gửi báo cáo
+                {loading ? "Đang gửi..." : "Gửi báo cáo"}
               </button>
             </div>
           </form>

@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   frontend:
     build:
       context: ./fe
       dockerfile: Dockerfile
     ports:
-      - "30001:3000"
+      - "3302:3000"
     environment:
       NODE_ENV: production
     restart: unless-stopped
@@ -16,10 +14,20 @@ services:
       context: ./be
       dockerfile: Dockerfile
     ports:
-      - "80001:8000"
-    env_file:
-      - ./be/.env
+      - "0.0.0.0:8802:8000" 
     environment:
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
       QDRANT_HOST: 160.191.88.194
       QDRANT_PORT: 6333
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION}
+      QDRANT_DISTANCE: ${QDRANT_DISTANCE}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER}
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
+      EMBEDDING_DIM: ${EMBEDDING_DIM}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      RAG_TOP_K: ${RAG_TOP_K}
     restart: unless-stopped

@@ -30,7 +30,7 @@ services:
     env_file:
       - ./be/.env
     environment:
-      QDRANT_HOST: host.docker.internal
+      QDRANT_HOST: 160.191.88.194
       QDRANT_PORT: 6333
     extra_hosts:
       - "host.docker.internal:host-gateway"
