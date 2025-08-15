@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse, Response
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 
 # Import database and API components
 from app.core.database import create_db_and_tables
@@ -51,6 +52,7 @@ app = FastAPI(
     redoc_url='/redoc',
     lifespan=lifespan,
 )
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["*"])
 
 # Add CORS middleware
 app.add_middleware(
@@ -60,6 +62,8 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
+
+
 
 # Include API routers
 app.include_router(api_router)
@@ -121,4 +125,12 @@ async def favicon():
 if __name__ == '__main__':
     import uvicorn
 
-    uvicorn.run('main:app', host='0.0.0.0', port=8000, reload=True, log_level='info')
+    uvicorn.run(
+        'main:app', 
+        host='0.0.0.0', 
+        port=8000, 
+        reload=True, 
+        log_level='info',
+        proxy_headers=True,
+        forwarded_allow_ips='*'
+    )
