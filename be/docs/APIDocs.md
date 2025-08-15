@@ -57,7 +57,7 @@
    - **Ví dụ (fetch)**:
 
      ```javascript
-     fetch('http://localhost:8000/api/v1/chat/query', {
+     fetch('http://api.hcm202.wc504.io.vn/api/v1/chat/query', {
        method: 'POST',
        headers: { 'Content-Type': 'application/json', 'X-Session-Id': 'demo-session' },
        body: JSON.stringify({ question: 'Tư tưởng HCM về giáo dục?', include_debug: true })
@@ -72,7 +72,7 @@
   - **Ví dụ (fetch)**:
 
     ```javascript
-    fetch('http://localhost:8000/api/v1/docs/search?q=tu tuong&limit=5')
+    fetch('http://api.hcm202.wc504.io.vn/api/v1/docs/search?q=tu tuong&limit=5')
       .then(r => r.json()).then(console.log)
     ```
 
@@ -85,7 +85,7 @@
   - **Ví dụ (EventSource)**:
 
     ```javascript
-    const es = new EventSource('http://localhost:8000/api/v1/chat/stream?q=' + encodeURIComponent('Tư tưởng HCM về đạo đức?'))
+    const es = new EventSource('http://api.hcm202.wc504.io.vn/api/v1/chat/stream?q=' + encodeURIComponent('Tư tưởng HCM về đạo đức?'))
     es.addEventListener('token', e => console.log(JSON.parse(e.data).data.text))
     es.addEventListener('done', e => { console.log(JSON.parse(e.data).data.response); es.close() })
     ```
@@ -97,7 +97,7 @@
   - **Ví dụ (fetch)**:
 
     ```javascript
-    fetch('http://localhost:8000/api/v1/docs/chunks?chapter_id=1&page=1&limit=20&q=độc lập')
+    fetch('http://api.hcm202.wc504.io.vn/api/v1/docs/chunks?chapter_id=1&page=1&limit=20&q=độc lập')
       .then(r => r.json()).then(console.log)
     ```
 
@@ -113,7 +113,7 @@
   - **Ví dụ (fetch)**:
 
     ```javascript
-    fetch('http://localhost:8000/api/v1/chat/report', {
+    fetch('http://api.hcm202.wc504.io.vn/api/v1/chat/report', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ reference_id: 'msg_123', reason: 'Sai trích dẫn' })
@@ -142,7 +142,7 @@
     fd.append('title', 'Tài liệu HCM');
     fd.append('description', 'Mô tả ngắn');
     fd.append('source', 'Nguồn A');
-    fetch('http://localhost:8000/api/v1/corpus/upload', {
+    fetch('http://api.hcm202.wc504.io.vn/api/v1/corpus/upload', {
       method: 'POST',
       headers: { 'X-Admin-Token': '...ADMIN_TOKEN...' },
       body: fd
@@ -157,7 +157,7 @@
   - **Ví dụ (fetch)**:
 
     ```javascript
-    fetch('http://localhost:8000/api/v1/corpus/delete?document_id=123', {
+    fetch('http://api.hcm202.wc504.io.vn/api/v1/corpus/delete?document_id=123', {
       method: 'DELETE',
       headers: { 'X-Admin-Token': '...ADMIN_TOKEN...' }
     }).then(r => r.json()).then(console.log)

@@ -7,7 +7,7 @@
 </head>
 <body>
   <h1>/api/v1/docs/search</h1>
-  <p>Base URL: http://localhost:8000</p>
+  <p>Base URL: http://api.hcm202.wc504.io.vn</p>
   <label>Query: <input id="q" value="tư tưởng"/></label>
   <label>Doc ID: <input id="doc_id" type="number"/></label>
   <label>Chapter ID: <input id="chapter_id" type="number"/></label>
@@ -23,7 +23,7 @@
       const params = new URLSearchParams({ q, limit });
       if (doc_id) params.set('doc_id', doc_id);
       if (chapter_id) params.set('chapter_id', chapter_id);
-      const res = await fetch(`http://localhost:8000/api/v1/docs/search?${params.toString()}`);
+      const res = await fetch(`http://api.hcm202.wc504.io.vn/api/v1/docs/search?${params.toString()}`);
       document.getElementById('out').textContent = JSON.stringify(await res.json(), null, 2);
     };
   </script>

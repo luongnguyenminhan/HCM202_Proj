@@ -1,4 +1,4 @@
-const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://localhost:8000";
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://api.hcm202.wc504.io.vn";
 const STRIPPED_BASE = RAW_API_BASE.replace(/\/+$/, "");
 const API_BASE = /\/api\/v\d+$/i.test(STRIPPED_BASE) ? STRIPPED_BASE : `${STRIPPED_BASE}/api/v1`;
 

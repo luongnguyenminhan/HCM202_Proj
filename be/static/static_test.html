@@ -26,7 +26,7 @@
     <h1>Static API Test – HCM RAG</h1>
     <div class="cfg">
       <label>Base URL:</label>
-      <input id="baseUrl" value="http://localhost:8000" />
+      <input id="baseUrl" value="http://api.hcm202.wc504.io.vn" />
       <button onclick="setLocal()">Local dev (8000)</button>
       <button onclick="setLocalDocker()">Local docker (80002)</button>
       <button onclick="ping()">Ping</button>
@@ -223,8 +223,8 @@
         } catch (e) { out.textContent = 'Error: ' + e; }
       }
 
-      function setLocal() { byId('baseUrl').value = 'http://localhost:8000'; }
-      function setLocalDocker() { byId('baseUrl').value = 'http://localhost:80002'; }
+      function setLocal() { byId('baseUrl').value = 'http://api.hcm202.wc504.io.vn'; }
+      function setLocalDocker() { byId('baseUrl').value = 'http://api.hcm202.wc504.io.vn2'; }
     </script>
   </body>
   </html>

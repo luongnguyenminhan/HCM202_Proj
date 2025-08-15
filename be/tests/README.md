@@ -1,7 +1,7 @@
 # Test API (Node.js)
 
 - Yêu cầu: Node >= 18 (có `fetch`, `FormData`, `Blob` builtin)
-- Chạy server BE ở `http://localhost:8000`
+- Chạy server BE ở `http://api.hcm202.wc504.io.vn`
 
 ## Cách chạy
 

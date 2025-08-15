@@ -1,7 +1,7 @@
 // ESM test script for API endpoints using node >=18 (fetch is built-in)
 // Run: node be/tests/test_api.mjs
 
-const BASE = 'http://localhost:8000/api/v1';
+const BASE = 'http://api.hcm202.wc504.io.vn/api/v1';
 
 function assertOk(condition, message) {
   if (!condition) throw new Error(message || 'Assertion failed');
