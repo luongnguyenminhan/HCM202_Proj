@@ -17,9 +17,19 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8802:8000"
-    env_file:
-      - ./env
     environment:
-      QDRANT_HOST: 160.191.88.194
-      QDRANT_PORT: 6333
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      QDRANT_HOST: ${QDRANT_HOST}
+      QDRANT_PORT: ${QDRANT_PORT}
+      QDRANT_COLLECTION: ${QDRANT_COLLECTION}
+      QDRANT_DISTANCE: ${QDRANT_DISTANCE}
+      EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER}
+      EMBEDDING_MODEL_ID: ${EMBEDDING_MODEL_ID}
+      EMBEDDING_DIM: ${EMBEDDING_DIM}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY}
+      RAG_TOP_K: ${RAG_TOP_K}
     restart: unless-stopped
