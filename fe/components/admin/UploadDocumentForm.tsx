@@ -25,6 +25,7 @@ export default function UploadDocumentForm({ onUploaded }: { onUploaded?: () => 
           await uploadDocument({ file, title: effectiveTitle, description: description || undefined, source: source || undefined }, adminToken || undefined);
           setTitle(""); setDescription(""); setSource(""); if (fileRef.current) fileRef.current.value = "";
           onUploaded?.();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
           setError(err?.message || "Upload thất bại");
         } finally {
