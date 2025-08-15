@@ -13,9 +13,9 @@ services:
     build:
       context: ./be
       dockerfile: Dockerfile
-    # backend sẽ chỉ lắng nghe trong mạng docker; nginx sẽ expose ra ngoài
+    # backend sẽ chỉ lắng nghe trong mạng docker; nginx sẽ proxy tới backend nội bộ
     ports:
-      - "127.0.0.1:8802:8802"
+      - "8000"
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
