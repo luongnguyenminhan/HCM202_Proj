@@ -18,7 +18,7 @@ services:
     ports:
       - "8802:8000"
     env_file:
-      - ./be/.env
+      - ./env
     environment:
       QDRANT_HOST: 160.191.88.194
       QDRANT_PORT: 6333
