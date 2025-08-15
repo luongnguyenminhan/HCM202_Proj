@@ -7,6 +7,7 @@ services:
       - "3302:3000"
     environment:
       NODE_ENV: production
+      NEXT_PUBLIC_API_BASE: http://backend:8802
     restart: unless-stopped
 
   backend:
