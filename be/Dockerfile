@@ -8,5 +8,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# expose fastapi port for internal network
+EXPOSE 8802
+
 # CMD với proxy headers cho reverse proxy
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8802", "--proxy-headers", "--forwarded-allow-ips", "*"]
