@@ -26,6 +26,8 @@ from app.core.config import (
     EMBEDDING_DIM,
     RAG_TOP_K,
 )
+import os
+from app.utils.color import print_info, print_warning, print_error
 
 
 # TODO: remove api_key
@@ -33,12 +35,37 @@ class QdrantVectorService:
     """Encapsulates Qdrant operations"""
 
     def __init__(self) -> None:
+        # Ưu tiên: QDRANT_URL (đầy đủ http/https)
+        qdrant_url = os.getenv("QDRANT_URL", "").strip()
+        host_value = str(QDRANT_HOST or "").strip()
+        try:
+            if qdrant_url:
+                self.client = QdrantClient(
+                    url=qdrant_url,
+                    api_key=QDRANT_API_KEY,
+                )
+            elif host_value.startswith("http://") or host_value.startswith("https://"):
+                self.client = QdrantClient(
+                    url=host_value,
+                    api_key=QDRANT_API_KEY,
+                )
+            else:
+                # Fallback: host/port (thường 6333 là HTTP)
+                self.client = QdrantClient(
+                    host=host_value or None,
+                    port=QDRANT_PORT,
+                    api_key=QDRANT_API_KEY,
+                )
+        except Exception as e:
+            print_error(f"[Qdrant] Init client failed: {e}")
+            raise
 
-        self.client = QdrantClient(
-            host=QDRANT_HOST,
-            port=QDRANT_PORT,
-            api_key=QDRANT_API_KEY,
-        )
+        # Chẩn đoán kết nối: in danh sách collections (không chặn luồng nếu lỗi)
+        try:
+            cols = self.client.get_collections()
+            print_info(f"[Qdrant] get_collections: {cols}")
+        except Exception as e:
+            print_warning(f"[Qdrant] get_collections failed: {e}")
         self.collection = QDRANT_COLLECTION
 
     def ensure_collection(self) -> None:
