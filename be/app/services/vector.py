@@ -33,26 +33,11 @@ class QdrantVectorService:
     """Encapsulates Qdrant operations"""
 
     def __init__(self) -> None:
-        # Quyết định dùng HTTPS hay HTTP dựa trên env DEV_DISABLE_SSL_VERIFY
-        # hoặc khi triển khai Qdrant chỉ mở cổng HTTP (thường 6333)
-        use_https = True
-        try:
-            import os as _os
-
-            if _os.getenv("DEV_DISABLE_SSL_VERIFY", "false").lower() in {
-                "1",
-                "true",
-                "yes",
-            }:
-                use_https = False
-        except Exception:
-            use_https = True
 
         self.client = QdrantClient(
             host=QDRANT_HOST,
             port=QDRANT_PORT,
             api_key=QDRANT_API_KEY,
-            https=use_https,
         )
         self.collection = QDRANT_COLLECTION
 
