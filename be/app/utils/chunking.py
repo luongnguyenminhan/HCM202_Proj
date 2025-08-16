@@ -9,9 +9,17 @@ from __future__ import annotations
 from typing import List, Tuple
 
 import re
+import os
 
 # Thêm import từ color.py để debug/log
 from app.utils.color import print_debug, print_error
+
+# Tuỳ chọn: vô hiệu hoá verify SSL trong môi trường DEV để tránh lỗi SSL khi
+# các thư viện phụ trợ thực hiện kết nối mạng nội bộ (nếu có).
+if os.getenv("DEV_DISABLE_SSL_VERIFY", "false").lower() in {"1", "true", "yes"}:
+    os.environ.setdefault("CURL_CA_BUNDLE", "")
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", "")
+    os.environ.setdefault("PYTHONHTTPSVERIFY", "0")
 
 try:
     from pypdf import PdfReader

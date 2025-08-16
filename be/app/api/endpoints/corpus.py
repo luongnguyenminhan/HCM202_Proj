@@ -10,20 +10,28 @@ from app.services import CorpusService
 from app.schemas.common_types import CorpusUploadResponse, CorpusDeleteResponse
 from app.utils import print_info, print_warning, print_error
 
-router = APIRouter(prefix='/corpus', tags=['corpus'])
+router = APIRouter(prefix="/corpus", tags=["corpus"])
 
 
 def get_corpus_service() -> CorpusService:
     return CorpusService()
 
 
-@router.post('/upload', response_model=CorpusUploadResponse)
+# Tuỳ chọn: vô hiệu hoá verify SSL trong môi trường DEV để tránh lỗi khi gọi
+# dịch vụ ngoài (LLM, loader, v.v.). Chỉ bật khi DEV_DISABLE_SSL_VERIFY=true
+if os.getenv("DEV_DISABLE_SSL_VERIFY", "false").lower() in {"1", "true", "yes"}:
+    os.environ.setdefault("CURL_CA_BUNDLE", "")
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", "")
+    os.environ.setdefault("PYTHONHTTPSVERIFY", "0")
+
+
+@router.post("/upload", response_model=CorpusUploadResponse)
 async def upload_document(
     file: UploadFile = File(...),
     title: str = Form(...),
     description: str = Form(None),
     source: str = Form(None),
-    x_admin_token: str | None = Header(default=None, alias='X-Admin-Token'),
+    x_admin_token: str | None = Header(default=None, alias="X-Admin-Token"),
     corpus_service: CorpusService = Depends(get_corpus_service),
 ):
     """
@@ -42,39 +50,45 @@ async def upload_document(
     try:
         # Simple admin token check if configured
         if ADMIN_TOKEN and x_admin_token != ADMIN_TOKEN:
-            print_warning('Unauthorized upload attempt: missing/invalid X-Admin-Token')
-            raise HTTPException(status_code=401, detail='Unauthorized')
+            print_warning("Unauthorized upload attempt: missing/invalid X-Admin-Token")
+            raise HTTPException(status_code=401, detail="Unauthorized")
         # Validate file type
         allowed_types = [
-            'application/pdf',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'text/plain',
+            "application/pdf",
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "text/plain",
         ]
         if file.content_type not in allowed_types:
-            raise HTTPException(status_code=415, detail='Chỉ hỗ trợ PDF, DOCX, TXT')
+            raise HTTPException(status_code=415, detail="Chỉ hỗ trợ PDF, DOCX, TXT")
 
         # Validate file size (10MB limit)
         max_size = 10 * 1024 * 1024  # 10MB
         if file.size and file.size > max_size:
-            raise HTTPException(status_code=413, detail='Kích thước tệp vượt quá giới hạn 10MB')
+            raise HTTPException(
+                status_code=413, detail="Kích thước tệp vượt quá giới hạn 10MB"
+            )
 
         # Title theo tên file (bỏ đè param title)
-        fname = file.filename or 'untitled'
+        fname = file.filename or "untitled"
         final_title = os.path.splitext(os.path.basename(fname))[0] or title
-        print_info(f"/corpus/upload: title='{final_title}', source='{source}', content_type='{file.content_type}'")
-        response = await corpus_service.upload_document(file=file.file, title=final_title, description=description, source=source)
+        print_info(
+            f"/corpus/upload: title='{final_title}', source='{source}', content_type='{file.content_type}'"
+        )
+        response = await corpus_service.upload_document(
+            file=file.file, title=final_title, description=description, source=source
+        )
         return response
     except HTTPException:
         raise
     except Exception as e:
-        print_error(f'Upload failed: {e}')
-        raise HTTPException(status_code=500, detail=f'Upload failed: {str(e)}')
+        print_error(f"Upload failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Upload failed: {str(e)}")
 
 
-@router.delete('/delete', response_model=CorpusDeleteResponse)
+@router.delete("/delete", response_model=CorpusDeleteResponse)
 async def delete_document(
     document_id: int,
-    x_admin_token: str | None = Header(default=None, alias='X-Admin-Token'),
+    x_admin_token: str | None = Header(default=None, alias="X-Admin-Token"),
     corpus_service: CorpusService = Depends(get_corpus_service),
 ):
     """
@@ -88,12 +102,12 @@ async def delete_document(
     """
     try:
         if ADMIN_TOKEN and x_admin_token != ADMIN_TOKEN:
-            print_warning('Unauthorized delete attempt: missing/invalid X-Admin-Token')
-            raise HTTPException(status_code=401, detail='Unauthorized')
+            print_warning("Unauthorized delete attempt: missing/invalid X-Admin-Token")
+            raise HTTPException(status_code=401, detail="Unauthorized")
         response = await corpus_service.delete_document(document_id)
         return response
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
-        print_error(f'Delete failed: {e}')
-        raise HTTPException(status_code=500, detail=f'Delete failed: {str(e)}')
+        print_error(f"Delete failed: {e}")
+        raise HTTPException(status_code=500, detail=f"Delete failed: {str(e)}")

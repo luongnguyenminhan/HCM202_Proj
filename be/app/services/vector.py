@@ -27,15 +27,32 @@ from app.core.config import (
     RAG_TOP_K,
 )
 
+
 # TODO: remove api_key
 class QdrantVectorService:
     """Encapsulates Qdrant operations"""
 
     def __init__(self) -> None:
+        # Quyết định dùng HTTPS hay HTTP dựa trên env DEV_DISABLE_SSL_VERIFY
+        # hoặc khi triển khai Qdrant chỉ mở cổng HTTP (thường 6333)
+        use_https = True
+        try:
+            import os as _os
+
+            if _os.getenv("DEV_DISABLE_SSL_VERIFY", "false").lower() in {
+                "1",
+                "true",
+                "yes",
+            }:
+                use_https = False
+        except Exception:
+            use_https = True
+
         self.client = QdrantClient(
             host=QDRANT_HOST,
             port=QDRANT_PORT,
             api_key=QDRANT_API_KEY,
+            https=use_https,
         )
         self.collection = QDRANT_COLLECTION
 
@@ -48,9 +65,9 @@ class QdrantVectorService:
 
         if not exists:
             # Normalize distance name to Qdrant enum
-            distance_name = (QDRANT_DISTANCE or 'Cosine').upper()
-            if distance_name not in {'COSINE', 'DOT', 'EUCLID'}:
-                distance_name = 'COSINE'
+            distance_name = (QDRANT_DISTANCE or "Cosine").upper()
+            if distance_name not in {"COSINE", "DOT", "EUCLID"}:
+                distance_name = "COSINE"
             distance = getattr(Distance, distance_name)
             self.client.recreate_collection(
                 collection_name=self.collection,
@@ -96,9 +113,13 @@ class QdrantVectorService:
         query_filter = None
         must_conditions: List[Any] = []
         if document_ids:
-            must_conditions.append(FieldCondition(key='document_id', match=MatchAny(any=document_ids)))
+            must_conditions.append(
+                FieldCondition(key="document_id", match=MatchAny(any=document_ids))
+            )
         if chapter_ids:
-            must_conditions.append(FieldCondition(key='chapter_id', match=MatchAny(any=chapter_ids)))
+            must_conditions.append(
+                FieldCondition(key="chapter_id", match=MatchAny(any=chapter_ids))
+            )
         if must_conditions:
             query_filter = Filter(must=must_conditions)
 
