@@ -35,7 +35,6 @@ class QdrantVectorService:
         self.client = QdrantClient(
             host=QDRANT_HOST,
             port=QDRANT_PORT,
-            api_key=QDRANT_API_KEY,
             prefer_grpc=False,
         )
         self.collection = QDRANT_COLLECTION
