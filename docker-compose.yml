@@ -7,7 +7,7 @@ services:
       - "11113:3000"
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_API_BASE: http://160.191.88.194:11111
+      NEXT_PUBLIC_API_BASE: https://api.hcm202.wc504.io.vn
     restart: unless-stopped
 
   backend:
@@ -16,7 +16,7 @@ services:
       dockerfile: Dockerfile
     # backend sẽ chỉ lắng nghe trong mạng docker; nginx sẽ proxy tới backend nội bộ
     ports:
-      - "11111:8000"
+      - "11112:8000"
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
@@ -25,6 +25,7 @@ services:
       DB_NAME: ${DB_NAME}
       QDRANT_HOST: 160.191.88.194
       QDRANT_PORT: 6333
+      QDRANT_API_KEY: ${QDRANT_API_KEY}
       QDRANT_COLLECTION: ${QDRANT_COLLECTION}
       QDRANT_DISTANCE: ${QDRANT_DISTANCE}
       EMBEDDING_PROVIDER: ${EMBEDDING_PROVIDER}

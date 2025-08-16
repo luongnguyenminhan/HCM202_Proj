@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "http://160.191.88.194:11112";
+const RAW_API_BASE = process.env.NEXT_PUBLIC_API_BASE || "https://api.hcm202.wc504.io.vn";
 const STRIPPED_BASE = RAW_API_BASE.replace(/\/+$/, "");
 const API_BASE = /\/api\/v\d+$/i.test(STRIPPED_BASE)
     ? STRIPPED_BASE
