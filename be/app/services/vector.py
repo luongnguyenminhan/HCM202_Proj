@@ -27,7 +27,7 @@ from app.core.config import (
     RAG_TOP_K,
 )
 
-
+# TODO: remove api_key
 class QdrantVectorService:
     """Encapsulates Qdrant operations"""
 
