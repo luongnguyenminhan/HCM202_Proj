@@ -37,7 +37,29 @@ def get_chat_model(model: str = LLM_MODEL_ID) -> ChatGoogleGenerativeAI:
     """Return a ChatGoogleGenerativeAI model (requires GOOGLE_API_KEY)."""
     if not GOOGLE_API_KEY:
         raise ValueError("GOOGLE_API_KEY is not set")
-    return ChatGoogleGenerativeAI(model=model, api_key=GOOGLE_API_KEY, temperature=0.2)
+    # Cho phép cấu hình bỏ kiểm tra SSL qua biến môi trường (tùy chọn)
+    # Chỉ kích hoạt khi DEV_DISABLE_SSL_VERIFY=true để tránh ảnh hưởng production
+    import os
+
+    if os.getenv("DEV_DISABLE_SSL_VERIFY", "false").lower() in {"1", "true", "yes"}:
+        os.environ.setdefault("CURL_CA_BUNDLE", "")
+        os.environ.setdefault("REQUESTS_CA_BUNDLE", "")
+        os.environ.setdefault("PYTHONHTTPSVERIFY", "0")
+
+    try:
+        # Thiết lập timeout và retry an toàn hơn
+        return ChatGoogleGenerativeAI(
+            model=model,
+            api_key=GOOGLE_API_KEY,
+            temperature=0.2,
+            timeout=30,
+            max_retries=3,
+        )
+    except Exception:
+        # Fallback an toàn tối thiểu nếu tham số không được hỗ trợ
+        return ChatGoogleGenerativeAI(
+            model=model, api_key=GOOGLE_API_KEY, temperature=0.2
+        )
 
 
 SYSTEM_PROMPT = 'Bạn là trợ lý RAG tiếng Việt, phong cách nghiêm túc/học thuật về tư tưởng Hồ Chí Minh, chính trị, triết lý; đồng thời linh hoạt trò chuyện (chit-chat) thân thiện khi người dùng chào hỏi/xã giao.\n- Luôn trả lời bằng tiếng Việt, 3–5 câu, rõ ràng, dễ đọc.\n- Với câu hỏi yêu cầu thông tin: tuyệt đối không bịa; chỉ dùng thông tin từ context. Nếu thiếu dữ liệu, nói rõ là không có thông tin.\n- Với chit-chat/không cần tri thức: trả lời tự nhiên, ngắn gọn; không cần dựa vào context.\n- Không yêu cầu trình bày phần "Trích dẫn" trong câu trả lời.\n'

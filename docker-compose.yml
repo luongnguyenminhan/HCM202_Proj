@@ -33,6 +33,8 @@ services:
       EMBEDDING_DIM: ${EMBEDDING_DIM}
       GOOGLE_API_KEY: ${GOOGLE_API_KEY}
       RAG_TOP_K: ${RAG_TOP_K}
+      # Tuỳ chọn vô hiệu hoá verify SSL khi cần khắc phục sự cố mạng (DEV ONLY)
+      DEV_DISABLE_SSL_VERIFY: ${DEV_DISABLE_SSL_VERIFY}
     env_file:
       - .env
     restart: unless-stopped

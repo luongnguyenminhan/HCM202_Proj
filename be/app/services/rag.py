@@ -351,11 +351,15 @@ class RAGService:
 
     async def _search_vectors(self, question: str) -> List[Tuple[int, float]]:
         """Search for similar vectors in Qdrant and return list of (chunk_id, score)."""
-        # Embed question
-        query_vec = self.embedding_provider.embed_text(question)
-        # Search in Qdrant
-        results = self.vector_service.search(query_vector=query_vec)
-        return results
+        try:
+            # Embed question
+            query_vec = self.embedding_provider.embed_text(question)
+            # Search in Qdrant
+            results = self.vector_service.search(query_vector=query_vec)
+            return results
+        except Exception as e:
+            print_error(f"[_search_vectors] Vector search failed: {e}")
+            return []
 
     async def _get_context_from_chunks(
         self, retrieved: List[Tuple[int, float]]
