@@ -19,7 +19,9 @@ export default function ChatDock({ onClose }: { onClose: () => void }) {
   const [messages, setMessages] = useState<ChatMessageItem[]>([]);
   const streamRef = useRef<{ close: () => void } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [docMeta, setDocMeta] = useState<Record<number, { title: string; chapters: Record<number, string> }>>({});
+  const [docMeta, setDocMeta] = useState<
+    Record<number, { title: string; chapters: Record<number, string> }>
+  >({});
   async function ensureDocMeta(sources: ChatSource[]) {
     const docIds = Array.from(new Set(sources.map((s) => s.document_id)));
     const missing = docIds.filter((id) => !docMeta[id]);
@@ -32,13 +34,15 @@ export default function ChatDock({ onClose }: { onClose: () => void }) {
             ...prev,
             [docId]: {
               title: detail.title,
-              chapters: Object.fromEntries((detail.chapters || []).map((c) => [c.id, c.title])),
+              chapters: Object.fromEntries(
+                (detail.chapters || []).map((c) => [c.id, c.title])
+              ),
             },
           }));
         } catch {
           // ignore fetch errors for meta
         }
-      }),
+      })
     );
   }
 
@@ -70,9 +74,23 @@ export default function ChatDock({ onClose }: { onClose: () => void }) {
         onSend={async (val) => {
           if (busy) return;
           setBusy(true);
-          const userMsg: ChatMessageItem = { id: crypto.randomUUID(), role: "user", content: val };
-          const aiMsgId = crypto.randomUUID();
-          setMessages((prev) => [...prev, userMsg, { id: aiMsgId, role: "assistant", content: "" }]);
+          const userMsg: ChatMessageItem = {
+            id: window.crypto?.randomUUID
+              ? window.crypto.randomUUID()
+              : Math.random().toString(36).substring(2, 15),
+            role: "user",
+            content: val,
+          };
+          // const aiMsgId = crypto.randomUUID();
+          const aiMsgId = window.crypto?.randomUUID
+            ? window.crypto.randomUUID()
+            : Math.random().toString(36).substring(2, 15);
+
+          setMessages((prev) => [
+            ...prev,
+            userMsg,
+            { id: aiMsgId, role: "assistant", content: "" },
+          ]);
 
           // close previous stream if any
           streamRef.current?.close?.();
@@ -81,11 +99,17 @@ export default function ChatDock({ onClose }: { onClose: () => void }) {
           const controller = streamChat(val, { includeDebug: false }, (evt) => {
             if (evt.type === "token") {
               const token = String(evt.data?.token ?? "");
-              setMessages((prev) => prev.map((m) => (m.id === aiMsgId ? { ...m, content: m.content + token } : m)));
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === aiMsgId ? { ...m, content: m.content + token } : m
+                )
+              );
             } else if (evt.type === "sources") {
               const sources = (evt.data as { sources?: ChatSource[] }).sources;
               if (Array.isArray(sources)) {
-                setMessages((prev) => prev.map((m) => (m.id === aiMsgId ? { ...m, sources } : m)));
+                setMessages((prev) =>
+                  prev.map((m) => (m.id === aiMsgId ? { ...m, sources } : m))
+                );
                 ensureDocMeta(sources);
               }
             } else if (evt.type === "done") {
