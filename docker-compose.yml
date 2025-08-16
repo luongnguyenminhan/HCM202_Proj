@@ -4,7 +4,7 @@ services:
       context: ./fe
       dockerfile: Dockerfile
     ports:
-      - "11111:3000"
+      - "11113:3000"
     environment:
       NODE_ENV: production
       NEXT_PUBLIC_API_BASE: http://160.191.88.194:11111
@@ -16,7 +16,7 @@ services:
       dockerfile: Dockerfile
     # backend sẽ chỉ lắng nghe trong mạng docker; nginx sẽ proxy tới backend nội bộ
     ports:
-      - "11112:8000"
+      - "11111:8000"
     environment:
       DB_USER: ${DB_USER}
       DB_PASSWORD: ${DB_PASSWORD}
